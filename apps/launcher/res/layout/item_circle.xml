@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="76dp"
+    android:layout_height="76dp"
+    android:layout_marginRight="18dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <studio.efs.braviahome.RoundedImageView
+        android:id="@+id/circleIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center"
+        android:background="#FF1E1E24"
+        android:scaleType="fitCenter" />
+</FrameLayout>

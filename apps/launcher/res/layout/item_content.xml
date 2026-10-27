@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="145dp"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="6dp"
+    android:padding="5dp"
+    android:background="@drawable/bg_glass"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="78dp">
+
+        <studio.efs.braviahome.RoundedImageView
+            android:id="@+id/contentImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FF23232B"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/contentTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#B3000000"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="7dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF" />
+    </FrameLayout>
+</LinearLayout>
+
+
+
+
+
+
+
+

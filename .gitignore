@@ -1,0 +1,20 @@
+# © EFS Studio
+# build output
+apps/*/build/
+*.apk
+
+# data about one particular TV: state before changes, undo files (network names, addresses)
+local/
+
+# signing keys and passwords — never commit them
+keystore/
+*.jks
+*.keystore
+keystore.properties
+.secrets/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

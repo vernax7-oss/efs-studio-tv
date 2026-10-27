@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio -->
+<resources>
+    <string name="app_name">EFS Studio TV</string>
+    <string name="tab_you">Dla Ciebie</string>
+    <string name="tab_settings">Wygląd</string>
+    <string name="row_picks">Wybrane dla Ciebie</string>
+    <string name="row_continue">Kontynuuj oglądanie</string>
+    <string name="row_apps">Moje aplikacje</string>
+    <string name="title_settings">Ustawienia</string>
+    <string name="action_open">Uruchom</string>
+</resources>
+
+
+
