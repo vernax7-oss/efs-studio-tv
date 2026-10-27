@@ -180,6 +180,20 @@ public class MainActivity extends Activity {
         buildPanel();
 
         bindTab(tabYou, SCREEN_YOU);
+        // Pastylka z nazwą układu: na ekranie głównym każde OK przełącza na następny układ (w kółko).
+        // Zmienia się tylko układ; kafelki, etykiety, czcionka i zegar zostają jak były.
+        tabYou.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (currentScreen != SCREEN_YOU) { showScreen(SCREEN_YOU); return; }
+                look.layout = Look.nextOf(Look.LAYOUTS, look.layout);
+                look.save(prefs);
+                renderHome();
+                // nowy układ sam przenosi fokus na swoje kafle; wracamy na pastylkę, żeby klikać dalej
+                homeHost.post(new Runnable() {
+                    @Override public void run() { tabYou.requestFocus(); }
+                });
+            }
+        });
         tabSettings.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { openPanel(); }
         });
