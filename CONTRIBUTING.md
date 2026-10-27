@@ -48,6 +48,17 @@ docs/                          install guide, prompts for Claude, layouts, watch
 2. `Look.java`: add `"bg_17"` to `BACKGROUNDS` and its name to `BACKGROUND_NAMES`.
 3. Only images you made yourself or with a license that allows commercial use and redistribution.
 
+<a id="add-a-language"></a>
+**Add a language**
+1. Copy `apps/launcher/res/values/strings.xml` (English) to `apps/launcher/res/values-<code>/strings.xml`,
+   e.g. `values-cs` for Czech, `values-pt-rBR` for Brazilian Portuguese.
+2. Translate the texts. Keep the `name` attributes, the `%1$s` / `%2$d` placeholders and the **number and order
+   of `<item>`s** in every `string-array` — the order matches the ids in `Look.java`. Leave out `app_name`.
+   Escape apostrophes: `l\'appli`.
+3. Do the same for `apps/wifi-watchdog/res/values/strings.xml` if you like.
+4. Build and switch the TV to that language (Settings → Device Preferences → Language) — Android picks the
+   translation automatically. Anything you don't translate falls back to English.
+
 **Support another TV brand**
 Add the vendor's package lists (bloat, telemetry, the stock launcher) to
 [docs/OTHER-BRANDS.md](docs/OTHER-BRANDS.md), or a separate script in `tools/` modeled on `optimize.ps1`:
@@ -72,11 +83,11 @@ Found during a full remote-control test on a Sony KD-55XG9505 (Android 10). Each
 
 | Where | Bug |
 |---|---|
-| Panel | The "Continue watching" row reads and writes `look.clock` instead of `look.continueRow` (the `default` branch of `cycle()` in `MainActivity`) — "Hide" doesn't hide the row and corrupts the clock setting. |
 | Panel | The last two rows (Sony interface, TV settings) are below the screen edge; the panel doesn't scroll. |
 | Panel | After changing a value with ←/→ the row highlight disappears. |
 | Pick list | `Panel.focusPickerRow()` uses `pickerIndex + 1` on a column that no longer has a header — the highlight is one row below the item that OK selects. |
-| Presets | "Czarno-białe" (Black & white) sets `logo = "white"`, which no longer exists in `Look.LOGOS` — logos stay in color. |
+| Presets | "Black and white" sets `logo = "white"`, which no longer exists in `Look.LOGOS` — logos stay in color. |
+| Arc | The "Continue watching" tile under the arc ignores Continue watching → Hide. |
 | Grid | The "Continue watching" row lives inside the scrolling column and changes height with focus — the focused tile can jump off screen. |
 | Logos | Hard-coded to 10 apps with no scrolling; the row is wider than the screen, both ends are clipped. |
 | Spotlight | Only 9 apps reachable; → at the end of the strip jumps to the "Look" pill. |
@@ -84,12 +95,11 @@ Found during a full remote-control test on a Sony KD-55XG9505 (Android 10). Each
 | Icons, Spotlight | With clear tiles, the focused tile is barely visible (no frame). |
 | Labels | "Name only" is ignored in Grid and Icons (they don't check `logoShown()`). |
 | Minimal, Logos | The panel lets you change options these layouts ignore (clock, tiles). |
-| Sony interface | With the stock launcher disabled, the dialog suggests `pm disable-user` — the opposite of what's needed. |
-| Everywhere | The interface is Polish only. Move strings to `res/values/strings.xml` (English) + `res/values-pl/` (Polish). Code comments are partly Polish too — translations welcome. |
+| Code | Many code comments are still in Polish — English translations of comments are welcome. |
 
 ## Ideas
 
-- English interface (and more languages),
+- more languages (see "Add a language"),
 - hide/reorder apps from the panel,
 - your own photo as a background (from a USB stick or the network),
 - per-layout clock styles, weather, a screensaver,

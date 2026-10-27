@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio — Polski -->
+<resources>
+    <string name="tab_you">Dla Ciebie</string>
+    <string name="tab_settings">Wygląd</string>
+    <string name="row_picks">Wybrane dla Ciebie</string>
+    <string name="row_continue">Kontynuuj oglądanie</string>
+    <string name="row_apps">Moje aplikacje</string>
+    <string name="title_settings">Ustawienia</string>
+    <string name="action_open">Uruchom</string>
+    <string name="continue_none">Kontynuuj oglądanie — brak pozycji</string>
+    <string name="continue_item">Kontynuuj: %1$s</string>
+
+    <string name="panel_title">Zmień wygląd</string>
+    <string name="panel_footer">Strzałki zmieniają ustawienie. Zmiany zapisują się od razu.</string>
+    <string name="panel_hint">↑↓ wybór   ←→ zmiana   OK lista   BACK wyjście</string>
+    <string name="row_preset">Projekt</string>
+    <string name="preset_value">wybierz gotowy zestaw</string>
+    <string name="preset_title">Gotowe projekty</string>
+    <string name="row_layout">Układ</string>
+    <string name="layout_title">Wybierz układ</string>
+    <string name="row_background">Tło</string>
+    <string name="background_title">Wybierz tło</string>
+    <string name="row_tiles">Kafelki</string>
+    <string name="row_labels">Etykiety</string>
+    <string name="row_logo">Kolor logo</string>
+    <string name="row_font">Czcionka</string>
+    <string name="row_clock">Zegar</string>
+    <string name="row_about">O programie</string>
+    <string name="about_value">wersja %1$s</string>
+    <string name="about_app">EFS Studio TV %1$s</string>
+    <string name="about_model">Model: %1$s</string>
+    <string name="about_system">System: Android %1$s (API %2$d)</string>
+    <string name="about_home">Ekran główny: %1$s</string>
+    <string name="about_apps">Aplikacji: %1$d</string>
+    <string name="home_other">inny</string>
+    <string name="close">Zamknij</string>
+    <string name="row_stock_ui">Fabryczny interfejs</string>
+    <string name="row_tv_settings">Ustawienia telewizora</string>
+    <string name="open">otwórz</string>
+
+    <string name="settings_version">Wersja EFS Studio TV</string>
+    <string name="settings_home">Ekran główny</string>
+    <string name="home_other_check">inny (sprawdź)</string>
+    <string name="settings_model">Model</string>
+    <string name="settings_system">System</string>
+    <string name="settings_apps">Aplikacji na ekranie</string>
+    <string name="settings_order">Kolejność własna</string>
+    <string name="yes">tak</string>
+    <string name="no">nie</string>
+    <string name="style_sharp">Styl: Ostry (kliknij, aby zmienić)</string>
+    <string name="style_glass">Styl: Szkło (kliknij, aby zmienić)</string>
+    <string name="action_home_role">EFS Studio TV jako ekran główny (system)</string>
+
+    <string name="home_switch_title">Przełączenie ekranu głównego</string>
+    <string name="home_switch_msg">Android pozwala, żeby tylko jedna aplikacja była ekranem głównym.\n\nJeśli systemowy dialog nie pomógł, potrzebna jest komenda ADB:\npm disable-user --user 0 com.google.android.tvlauncher</string>
+    <string name="stock_ui_off_title">Fabryczny interfejs jest wyłączony</string>
+    <string name="stock_ui_off_msg">Fabryczny ekran główny jest wyłączony — dzięki temu ekranem głównym jest EFS Studio TV — więc nie da się go otworzyć.\n\nAby go przywrócić, wykonaj przez ADB:\npm enable com.google.android.tvlauncher</string>
+    <string name="toast_already_home">EFS Studio TV jest już domyślnym ekranem głównym</string>
+    <string name="toast_home_returns">HOME wraca do EFS Studio TV</string>
+    <string name="ok">OK</string>
+
+    <string-array name="layout_names">
+        <item>Siatka</item>
+        <item>Ikony</item>
+        <item>Minimal</item>
+        <item>Logotypy</item>
+        <item>Reflektor</item>
+        <item>Mozaika</item>
+        <item>Panel boczny</item>
+        <item>Dok</item>
+        <item>Łuk</item>
+    </string-array>
+    <string-array name="layout_hints">
+        <item>5 kafli w rzędzie, podpisy pod kaflami</item>
+        <item>kwadratowe ikony 6 w rzędzie</item>
+        <item>same nazwy aplikacji, bez kafli</item>
+        <item>tylko znaki, wielki zegar</item>
+        <item>jeden duży kafel i pasek znaków</item>
+        <item>duży kafel + kolumna + rząd czterech</item>
+        <item>lista aplikacji i duży podgląd</item>
+        <item>rząd kafli przy dolnej krawędzi</item>
+        <item>kafle po łuku, wybrany na górze</item>
+    </string-array>
+    <string-array name="tile_names">
+        <item>Szkło</item>
+        <item>Szron</item>
+        <item>Ciemne</item>
+        <item>Bez tła</item>
+        <item>Kolor aplikacji</item>
+    </string-array>
+    <string-array name="label_names">
+        <item>Logo i nazwa</item>
+        <item>Tylko logo</item>
+        <item>Tylko nazwa</item>
+    </string-array>
+    <string-array name="logo_names">
+        <item>Kolor aplikacji</item>
+        <item>Kontur (linia)</item>
+        <item>Ikona na całość</item>
+    </string-array>
+    <string-array name="font_names">
+        <item>Nowoczesna</item>
+        <item>Elegancka</item>
+        <item>Zaokrąglona</item>
+        <item>Zwarta</item>
+    </string-array>
+    <string-array name="preset_names">
+        <item>Siatka klasyczna</item>
+        <item>Ikony</item>
+        <item>Minimal</item>
+        <item>Mozaika</item>
+        <item>Panel boczny</item>
+        <item>Dok</item>
+        <item>Czarno-białe</item>
+    </string-array>
+    <string-array name="background_names">
+        <item>Rozmyty plakat</item>
+        <item>Mglisty brzeg</item>
+        <item>Cicha zatoka</item>
+        <item>Las we mgle</item>
+        <item>Dolina górska</item>
+        <item>Wydmy</item>
+        <item>Granitowe szczyty</item>
+        <item>Miasto o zmierzchu</item>
+        <item>Złota godzina</item>
+        <item>Czarno-białe miasto</item>
+        <item>Czarno-białe góry</item>
+        <item>Miasto nocą nad rzeką</item>
+        <item>Biały kabriolet</item>
+        <item>Czarno-białe sekwoje</item>
+        <item>Łąka stokrotek</item>
+        <item>Tulipanowe pola</item>
+        <item>Górskie jezioro</item>
+    </string-array>
+    <string-array name="continue_names">
+        <item>Pokazuj</item>
+        <item>Ukryj</item>
+    </string-array>
+    <string-array name="clock_names">
+        <item>Duży</item>
+        <item>Mały</item>
+        <item>Ukryty</item>
+    </string-array>
+</resources>

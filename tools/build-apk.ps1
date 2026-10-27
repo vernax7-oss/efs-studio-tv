@@ -16,11 +16,16 @@
 #   - otherwise the standard Android debug key (%USERPROFILE%\.android\debug.keystore),
 #     created automatically if it does not exist.
 #   Note: updating an app on the TV requires the SAME key as the previous install.
+#
+# -RenamePackage <name>: builds a copy under another package name, so it can be installed next to
+#   an existing install (e.g. one signed with a different key) for testing. Start it with
+#   adb shell am start -n <name>/studio.efs.braviahome.MainActivity and uninstall it afterwards.
 param(
   [Parameter(Mandatory = $true)][string]$App,
   [string]$Sdk = "",
   [int]$MinSdk = 23,
-  [int]$TargetSdk = 28
+  [int]$TargetSdk = 28,
+  [string]$RenamePackage = ""
 )
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
@@ -70,6 +75,7 @@ Write-Host "== aapt2 compile + link =="
 & "$bt\aapt2.exe" compile --dir "$root\res" -o "$out\res.zip"
 if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
 $assets = @(); if (Test-Path "$root\assets") { $assets = @("-A", "$root\assets") }
+if ($RenamePackage) { $assets += @("--rename-manifest-package", $RenamePackage) }
 & "$bt\aapt2.exe" link -o "$out\app-unsigned.apk" -I $jar `
     --manifest "$root\AndroidManifest.xml" `
     --min-sdk-version $MinSdk --target-sdk-version $TargetSdk @assets `

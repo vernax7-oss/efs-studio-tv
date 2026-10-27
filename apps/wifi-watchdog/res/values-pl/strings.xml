@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio — Polski -->
+<resources>
+    <string name="wd_running">EFS Wi-Fi Watchdog działa</string>
+    <string name="wd_info">Przy włączonym ekranie co 20 s sprawdza internet. Po 2 nieudanych próbach wyłącza i włącza Wi-Fi (najwyżej 3 razy na jedno włączenie ekranu). Startuje sam po uruchomieniu telewizora. BACK zamyka ten ekran.</string>
+    <string name="wd_log_empty">(log jest jeszcze pusty)</string>
+    <string name="wd_log_error">(nie można odczytać logu: %1$s)</string>
+    <string name="wd_log_latest">Ostatnie wpisy w logu:</string>
+    <string name="wd_channel">Pilnowanie Wi-Fi</string>
+    <string name="wd_channel_desc">Restartuje Wi-Fi, gdy po wybudzeniu nie ma internetu</string>
+    <string name="wd_notification">Pilnuję połączenia z internetem</string>
+</resources>

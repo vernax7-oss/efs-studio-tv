@@ -96,11 +96,13 @@ public class WatchdogService extends Service {
         startForeground(NOTIFICATION_ID, buildNotification());
         cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        try {
-            callback = new NetworkCallbackImpl();
-            cm.registerDefaultNetworkCallback(callback);
-        } catch (Exception e) {
-            log("cannot register network callback: " + e.getMessage());
+        if (Build.VERSION.SDK_INT >= 24) {   // registerDefaultNetworkCallback exists from Android 7
+            try {
+                callback = new NetworkCallbackImpl();
+                cm.registerDefaultNetworkCallback(callback);
+            } catch (Exception e) {
+                log("cannot register network callback: " + e.getMessage());
+            }
         }
         IntentFilter f = new IntentFilter();
         f.addAction(Intent.ACTION_SCREEN_ON);
@@ -187,16 +189,16 @@ public class WatchdogService extends Service {
     private Notification buildNotification() {
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= 26 && nm != null) {
-            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Wi-Fi watchdog",
+            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, getString(R.string.wd_channel),
                     NotificationManager.IMPORTANCE_MIN);
-            ch.setDescription("Restarts Wi-Fi when there is no internet after waking up");
+            ch.setDescription(getString(R.string.wd_channel_desc));
             nm.createNotificationChannel(ch);
         }
         Notification.Builder b = Build.VERSION.SDK_INT >= 26
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
         return b.setContentTitle("EFS Wi-Fi Watchdog")
-                .setContentText("Keeping the internet connection alive")
+                .setContentText(getString(R.string.wd_notification))
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setOngoing(true)
                 .build();

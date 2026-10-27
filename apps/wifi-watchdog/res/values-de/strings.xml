@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio — Deutsch -->
+<resources>
+    <string name="wd_running">EFS Wi-Fi Watchdog läuft</string>
+    <string name="wd_info">Bei eingeschaltetem Bildschirm prüft er alle 20 s die Internetverbindung. Nach 2 fehlgeschlagenen Prüfungen schaltet er WLAN aus und wieder ein (höchstens 3-mal pro Einschalten). Er startet automatisch mit dem Fernseher. BACK schließt diesen Bildschirm.</string>
+    <string name="wd_log_empty">(das Protokoll ist noch leer)</string>
+    <string name="wd_log_error">(Protokoll kann nicht gelesen werden: %1$s)</string>
+    <string name="wd_log_latest">Letzte Protokolleinträge:</string>
+    <string name="wd_channel">WLAN-Wächter</string>
+    <string name="wd_channel_desc">Startet WLAN neu, wenn nach dem Aufwachen kein Internet da ist</string>
+    <string name="wd_notification">Hält die Internetverbindung am Leben</string>
+</resources>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio — Deutsch -->
+<resources>
+    <string name="tab_you">Für dich</string>
+    <string name="tab_settings">Aussehen</string>
+    <string name="row_picks">Für dich ausgewählt</string>
+    <string name="row_continue">Weiterschauen</string>
+    <string name="row_apps">Meine Apps</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="action_open">Öffnen</string>
+    <string name="continue_none">Weiterschauen — noch nichts da</string>
+    <string name="continue_item">Weiter: %1$s</string>
+
+    <string name="panel_title">Aussehen ändern</string>
+    <string name="panel_footer">Pfeile ändern eine Einstellung. Änderungen werden sofort gespeichert.</string>
+    <string name="panel_hint">↑↓ wählen   ←→ ändern   OK Liste   BACK beenden</string>
+    <string name="row_preset">Vorlage</string>
+    <string name="preset_value">fertigen Look wählen</string>
+    <string name="preset_title">Fertige Looks</string>
+    <string name="row_layout">Layout</string>
+    <string name="layout_title">Layout wählen</string>
+    <string name="row_background">Hintergrund</string>
+    <string name="background_title">Hintergrund wählen</string>
+    <string name="row_tiles">Kacheln</string>
+    <string name="row_labels">Beschriftung</string>
+    <string name="row_logo">Logo-Stil</string>
+    <string name="row_font">Schrift</string>
+    <string name="row_clock">Uhr</string>
+    <string name="row_about">Über</string>
+    <string name="about_value">Version %1$s</string>
+    <string name="about_app">EFS Studio TV %1$s</string>
+    <string name="about_model">Modell: %1$s</string>
+    <string name="about_system">System: Android %1$s (API %2$d)</string>
+    <string name="about_home">Startbildschirm: %1$s</string>
+    <string name="about_apps">Apps: %1$d</string>
+    <string name="home_other">eine andere App</string>
+    <string name="close">Schließen</string>
+    <string name="row_stock_ui">Originaloberfläche</string>
+    <string name="row_tv_settings">TV-Einstellungen</string>
+    <string name="open">öffnen</string>
+
+    <string name="settings_version">EFS Studio TV Version</string>
+    <string name="settings_home">Startbildschirm</string>
+    <string name="home_other_check">eine andere App (prüfen)</string>
+    <string name="settings_model">Modell</string>
+    <string name="settings_system">System</string>
+    <string name="settings_apps">Apps auf dem Bildschirm</string>
+    <string name="settings_order">Eigene Reihenfolge</string>
+    <string name="yes">ja</string>
+    <string name="no">nein</string>
+    <string name="style_sharp">Stil: Scharf (klicken zum Ändern)</string>
+    <string name="style_glass">Stil: Glas (klicken zum Ändern)</string>
+    <string name="action_home_role">EFS Studio TV als Startbildschirm (System)</string>
+
+    <string name="home_switch_title">Startbildschirm wechseln</string>
+    <string name="home_switch_msg">Android erlaubt nur eine App als Startbildschirm.\n\nWenn der Systemdialog nicht geholfen hat, ist dieser ADB-Befehl nötig:\npm disable-user --user 0 com.google.android.tvlauncher</string>
+    <string name="stock_ui_off_title">Die Originaloberfläche ist ausgeschaltet</string>
+    <string name="stock_ui_off_msg">Der originale Startbildschirm ist deaktiviert — so wurde EFS Studio TV zum Startbildschirm — und kann daher nicht geöffnet werden.\n\nZum Wiederherstellen per ADB ausführen:\npm enable com.google.android.tvlauncher</string>
+    <string name="toast_already_home">EFS Studio TV ist bereits der Standard-Startbildschirm</string>
+    <string name="toast_home_returns">HOME bringt dich zurück zu EFS Studio TV</string>
+    <string name="ok">OK</string>
+
+    <string-array name="layout_names">
+        <item>Raster</item>
+        <item>Symbole</item>
+        <item>Minimal</item>
+        <item>Logos</item>
+        <item>Spotlight</item>
+        <item>Mosaik</item>
+        <item>Seitenleiste</item>
+        <item>Dock</item>
+        <item>Bogen</item>
+    </string-array>
+    <string-array name="layout_hints">
+        <item>5 Kacheln pro Reihe, Beschriftung darunter</item>
+        <item>quadratische Symbole, 6 pro Reihe</item>
+        <item>nur App-Namen, keine Kacheln</item>
+        <item>nur Logos, große Uhr</item>
+        <item>eine große Kachel und eine Logoleiste</item>
+        <item>große Kachel + Spalte + Viererreihe</item>
+        <item>App-Liste und große Vorschau</item>
+        <item>eine Kachelreihe am unteren Rand</item>
+        <item>Kacheln im Bogen, die gewählte oben</item>
+    </string-array>
+    <string-array name="tile_names">
+        <item>Glas</item>
+        <item>Milchglas</item>
+        <item>Dunkel</item>
+        <item>Transparent</item>
+        <item>App-Farbe</item>
+    </string-array>
+    <string-array name="label_names">
+        <item>Logo und Name</item>
+        <item>Nur Logo</item>
+        <item>Nur Name</item>
+    </string-array>
+    <string-array name="logo_names">
+        <item>App-Farbe</item>
+        <item>Kontur</item>
+        <item>Ganze Kachel</item>
+    </string-array>
+    <string-array name="font_names">
+        <item>Modern</item>
+        <item>Elegant</item>
+        <item>Abgerundet</item>
+        <item>Schmal</item>
+    </string-array>
+    <string-array name="preset_names">
+        <item>Klassisches Raster</item>
+        <item>Symbole</item>
+        <item>Minimal</item>
+        <item>Mosaik</item>
+        <item>Seitenleiste</item>
+        <item>Dock</item>
+        <item>Schwarzweiß</item>
+    </string-array>
+    <string-array name="background_names">
+        <item>Unscharfes Poster</item>
+        <item>Nebliges Ufer</item>
+        <item>Stille Bucht</item>
+        <item>Wald im Nebel</item>
+        <item>Bergtal</item>
+        <item>Dünen</item>
+        <item>Granitgipfel</item>
+        <item>Stadt in der Dämmerung</item>
+        <item>Goldene Stunde</item>
+        <item>Stadt in Schwarzweiß</item>
+        <item>Berge in Schwarzweiß</item>
+        <item>Stadt am Fluss bei Nacht</item>
+        <item>Weißes Cabrio</item>
+        <item>Mammutbäume in Schwarzweiß</item>
+        <item>Gänseblümchenwiese</item>
+        <item>Tulpenfelder</item>
+        <item>Bergsee</item>
+    </string-array>
+    <string-array name="continue_names">
+        <item>Anzeigen</item>
+        <item>Ausblenden</item>
+    </string-array>
+    <string-array name="clock_names">
+        <item>Groß</item>
+        <item>Klein</item>
+        <item>Ausgeblendet</item>
+    </string-array>
+</resources>

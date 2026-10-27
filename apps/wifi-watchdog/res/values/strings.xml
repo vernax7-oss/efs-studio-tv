@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- © EFS Studio -->
+<!-- © EFS Studio — default (English). Translations: values-pl, values-de, values-fr, values-es, values-it.
+     Log entries stay in English on purpose: they are technical data for troubleshooting. -->
 <resources>
-    <string name="app_name">EFS Wi-Fi Watchdog</string>
+    <string name="app_name" translatable="false">EFS Wi-Fi Watchdog</string>
+    <string name="wd_running">EFS Wi-Fi Watchdog is running</string>
+    <string name="wd_info">While the screen is on, it checks the internet every 20 s. After 2 failed checks it turns Wi-Fi off and on again (at most 3 times per screen-on). It starts by itself when the TV boots. Press BACK to close this screen.</string>
+    <string name="wd_log_empty">(the log is still empty)</string>
+    <string name="wd_log_error">(cannot read the log: %1$s)</string>
+    <string name="wd_log_latest">Latest log entries:</string>
+    <string name="wd_channel">Wi-Fi watchdog</string>
+    <string name="wd_channel_desc">Restarts Wi-Fi when there is no internet after waking up</string>
+    <string name="wd_notification">Keeping the internet connection alive</string>
 </resources>

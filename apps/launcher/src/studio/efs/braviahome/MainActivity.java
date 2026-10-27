@@ -110,7 +110,7 @@ public class MainActivity extends Activity {
     private final Runnable clockTick = new Runnable() {
         @Override public void run() {
             if (clock != null) clock.setText(timeFormat.format(new Date()));
-            String dateText = new SimpleDateFormat("EEEE, d MMMM", new Locale("pl", "PL")).format(new Date());
+            String dateText = new SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(new Date());
             if (clockDate != null) clockDate.setText(dateText);
             if (clockHeroDate != null) clockHeroDate.setText(dateText);
             if (clockHeroTime != null) clockHeroTime.setText(timeFormat.format(new Date()));
@@ -129,6 +129,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Look.loadNames(getResources());
 
         try {
             appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -982,10 +983,10 @@ public class MainActivity extends Activity {
         panel = new Panel(this, panelView, panelRows, pickerBox, panelDim);
 
         panel.add(new Panel.Item() {
-            @Override String label() { return "Projekt"; }
-            @Override String value() { return "wybierz gotowy zestaw"; }
+            @Override String label() { return getString(R.string.row_preset); }
+            @Override String value() { return getString(R.string.preset_value); }
             @Override void open() {
-                panel.showPicker("Gotowe projekty", Look.PRESET_NAMES, indexOf(Look.PRESET_NAMES, ""),
+                panel.showPicker(getString(R.string.preset_title), Look.PRESET_NAMES, indexOf(Look.PRESET_NAMES, ""),
                         new Panel.OnPick() {
                             @Override public void picked(int which) {
                                 look.applyPreset(which);
@@ -998,10 +999,10 @@ public class MainActivity extends Activity {
         });
 
         panel.add(new Panel.Item() {
-            @Override String label() { return "Układ"; }
+            @Override String label() { return getString(R.string.row_layout); }
             @Override String value() { return Look.nameOf(Look.LAYOUTS, Look.LAYOUT_NAMES, look.layout); }
             @Override void open() {
-                panel.showPicker("Wybierz układ", Look.LAYOUT_NAMES, Look.LAYOUT_HINTS, indexOf(Look.LAYOUTS, look.layout),
+                panel.showPicker(getString(R.string.layout_title), Look.LAYOUT_NAMES, Look.LAYOUT_HINTS, indexOf(Look.LAYOUTS, look.layout),
                         new Panel.OnPick() {
                             @Override public void picked(int which) {
                                 look.layout = Look.LAYOUTS[which];
@@ -1013,11 +1014,11 @@ public class MainActivity extends Activity {
         });
 
         panel.add(new Panel.Item() {
-            @Override String label() { return "Tło"; }
+            @Override String label() { return getString(R.string.row_background); }
             @Override String value() { return Look.nameOf(Look.BACKGROUNDS, Look.BACKGROUND_NAMES, look.background); }
             @Override android.graphics.drawable.Drawable thumb() { return backgroundThumb(); }
             @Override void open() {
-                panel.showPicker("Wybierz tło", Look.BACKGROUND_NAMES, indexOf(Look.BACKGROUNDS, look.background),
+                panel.showPicker(getString(R.string.background_title), Look.BACKGROUND_NAMES, indexOf(Look.BACKGROUNDS, look.background),
                         new Panel.OnPick() {
                             @Override public void picked(int which) {
                                 look.background = Look.BACKGROUNDS[which];
@@ -1037,76 +1038,83 @@ public class MainActivity extends Activity {
             }
         });
 
-        panel.add(cycle("Kafelki", Look.TILES, Look.TILES_NAMES));
-        panel.add(cycle("Etykiety", Look.LABELS, Look.LABELS_NAMES));
-        panel.add(cycle("Kolor logo", Look.LOGOS, Look.LOGOS_NAMES));
-        panel.add(cycle("Czcionka", Look.FONTS, Look.FONTS_NAMES));
-        panel.add(cycle("Zegar", Look.CLOCKS, Look.CLOCKS_NAMES));
-        panel.add(cycle("Kontynuuj oglądanie", Look.CONTINUE, Look.CONTINUE_NAMES));
+        panel.add(cycle(R.string.row_tiles, "tiles", Look.TILES, Look.TILES_NAMES));
+        panel.add(cycle(R.string.row_labels, "labels", Look.LABELS, Look.LABELS_NAMES));
+        panel.add(cycle(R.string.row_logo, "logo", Look.LOGOS, Look.LOGOS_NAMES));
+        panel.add(cycle(R.string.row_font, "font", Look.FONTS, Look.FONTS_NAMES));
+        panel.add(cycle(R.string.row_clock, "clock", Look.CLOCKS, Look.CLOCKS_NAMES));
+        panel.add(cycle(R.string.row_continue, "continue", Look.CONTINUE, Look.CONTINUE_NAMES));
 
         panel.add(new Panel.Item() {
-            @Override String label() { return "O programie"; }
-            @Override String value() { return "wersja " + appVersion; }
+            @Override String label() { return getString(R.string.row_about); }
+            @Override String value() { return getString(R.string.about_value, appVersion); }
             @Override void open() {
                 String[] info = {
-                        "EFS Studio TV " + appVersion,
-                        "Model: " + Build.MODEL,
-                        "System: Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")",
-                        "Ekran główny: " + (isOurHome() ? "EFS Studio TV" : "inny"),
-                        "Aplikacji: " + orderedApps.size(),
-                        "Zamknij",
+                        getString(R.string.about_app, appVersion),
+                        getString(R.string.about_model, Build.MODEL),
+                        getString(R.string.about_system, Build.VERSION.RELEASE, Build.VERSION.SDK_INT),
+                        getString(R.string.about_home,
+                                getString(isOurHome() ? R.string.app_name : R.string.home_other)),
+                        getString(R.string.about_apps, orderedApps.size()),
+                        getString(R.string.close),
                 };
-                panel.showPicker("O programie", info, info.length - 1, new Panel.OnPick() {
+                panel.showPicker(getString(R.string.row_about), info, info.length - 1, new Panel.OnPick() {
                     @Override public void picked(int which) { }
                 });
             }
         });
 
         panel.add(new Panel.Item() {
-            @Override String label() { return "Interfejs Sony"; }
-            @Override String value() { return "otwórz"; }
+            @Override String label() { return getString(R.string.row_stock_ui); }
+            @Override String value() { return getString(R.string.open); }
             @Override void open() { closePanelAndRun(new Runnable() { @Override public void run() { openSonyUi(); } }); }
         });
 
         panel.add(new Panel.Item() {
-            @Override String label() { return "Ustawienia telewizora"; }
-            @Override String value() { return "otwórz"; }
+            @Override String label() { return getString(R.string.row_tv_settings); }
+            @Override String value() { return getString(R.string.open); }
             @Override void open() { closePanelAndRun(new Runnable() { @Override public void run() { openSystemSettings(); } }); }
         });
 
         panel.build();
     }
 
-    /** Paseczek, który przełącza wartość strzałkami i zapisuje wybór. */
-    private Panel.Item cycle(final String label, final String[] values, final String[] names) {
+    /**
+     * Panel row that cycles a value with the arrows and saves it.
+     * field = which Look field it edits (tiles/labels/logo/font/clock/continue) — never the
+     * visible label, which is translated.
+     */
+    private Panel.Item cycle(final int labelRes, final String field, final String[] values, final String[] names) {
         return new Panel.Item() {
-            @Override String label() { return label; }
-            @Override String value() {
-                switch (label) {
-                    case "Kafelki": return Look.nameOf(values, names, look.tiles);
-                    case "Etykiety": return Look.nameOf(values, names, look.labels);
-                    case "Kolor logo": return Look.nameOf(values, names, look.logo);
-                    case "Czcionka": return Look.nameOf(values, names, look.font);
-                    default: return Look.nameOf(values, names, look.clock);
-                }
-            }
+            @Override String label() { return getString(labelRes); }
+            @Override String value() { return Look.nameOf(values, names, get()); }
             @Override void left() { step(-1); }
             @Override void right() { step(1); }
             private void step(int direction) {
-                String current = value();
                 int at = 0;
-                for (int i = 0; i < names.length; i++) if (names[i].equals(current)) at = i;
-                at = (at + direction + names.length) % names.length;
+                for (int i = 0; i < values.length; i++) if (values[i].equals(get())) at = i;
+                at = (at + direction + values.length) % values.length;
                 set(values[at]);
                 look.save(prefs);
                 renderHome();
             }
+            private String get() {
+                switch (field) {
+                    case "tiles": return look.tiles;
+                    case "labels": return look.labels;
+                    case "logo": return look.logo;
+                    case "font": return look.font;
+                    case "continue": return look.continueRow;
+                    default: return look.clock;
+                }
+            }
             private void set(String value) {
-                switch (label) {
-                    case "Kafelki": look.tiles = value; break;
-                    case "Etykiety": look.labels = value; break;
-                    case "Kolor logo": look.logo = value; break;
-                    case "Czcionka": look.font = value; break;
+                switch (field) {
+                    case "tiles": look.tiles = value; break;
+                    case "labels": look.labels = value; break;
+                    case "logo": look.logo = value; break;
+                    case "font": look.font = value; break;
+                    case "continue": look.continueRow = value; break;
                     default: look.clock = value; break;
                 }
             }
@@ -1119,57 +1127,60 @@ public class MainActivity extends Activity {
     }
 
     private void buildSettings() {
-        addSetting("Wersja EFS Studio TV", appVersion);
-        addSetting("Ekran główny", isOurHome() ? "EFS Studio TV" : "inny (sprawdź)");
-        addSetting("Model", Build.MODEL);
-        addSetting("System", "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")");
-        addSetting("Aplikacji na ekranie", String.valueOf(orderedApps.size()));
-        addSetting("Kolejność własna", prefs.getString(PREF_ORDER, "").isEmpty() ? "nie" : "tak");
-        addAction("Układ: " + Look.nameOf(Look.LAYOUTS, Look.LAYOUT_NAMES, look.layout), new Runnable() {
+        addSetting(getString(R.string.settings_version), appVersion);
+        addSetting(getString(R.string.settings_home),
+                getString(isOurHome() ? R.string.app_name : R.string.home_other_check));
+        addSetting(getString(R.string.settings_model), Build.MODEL);
+        addSetting(getString(R.string.settings_system), "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")");
+        addSetting(getString(R.string.settings_apps), String.valueOf(orderedApps.size()));
+        addSetting(getString(R.string.settings_order),
+                getString(prefs.getString(PREF_ORDER, "").isEmpty() ? R.string.no : R.string.yes));
+        addAction(getString(R.string.row_layout) + ": " + Look.nameOf(Look.LAYOUTS, Look.LAYOUT_NAMES, look.layout), new Runnable() {
             @Override public void run() {
                 look.layout = Look.nextOf(Look.LAYOUTS, look.layout);
                 applyLookChange();
             }
         });
-        addAction("Kafelki: " + Look.nameOf(Look.TILES, Look.TILES_NAMES, look.tiles), new Runnable() {
+        addAction(getString(R.string.row_tiles) + ": " + Look.nameOf(Look.TILES, Look.TILES_NAMES, look.tiles), new Runnable() {
             @Override public void run() {
                 look.tiles = Look.nextOf(Look.TILES, look.tiles);
                 applyLookChange();
             }
         });
-        addAction("Etykiety: " + Look.nameOf(Look.LABELS, Look.LABELS_NAMES, look.labels), new Runnable() {
+        addAction(getString(R.string.row_labels) + ": " + Look.nameOf(Look.LABELS, Look.LABELS_NAMES, look.labels), new Runnable() {
             @Override public void run() {
                 look.labels = Look.nextOf(Look.LABELS, look.labels);
                 applyLookChange();
             }
         });
-        addAction("Logo: " + Look.nameOf(Look.LOGOS, Look.LOGOS_NAMES, look.logo), new Runnable() {
+        addAction(getString(R.string.row_logo) + ": " + Look.nameOf(Look.LOGOS, Look.LOGOS_NAMES, look.logo), new Runnable() {
             @Override public void run() {
                 look.logo = Look.nextOf(Look.LOGOS, look.logo);
                 applyLookChange();
             }
         });
-        addAction("Czcionka: " + Look.nameOf(Look.FONTS, Look.FONTS_NAMES, look.font), new Runnable() {
+        addAction(getString(R.string.row_font) + ": " + Look.nameOf(Look.FONTS, Look.FONTS_NAMES, look.font), new Runnable() {
             @Override public void run() {
                 look.font = Look.nextOf(Look.FONTS, look.font);
                 applyLookChange();
             }
         });
-        addAction("Zegar: " + Look.nameOf(Look.CLOCKS, Look.CLOCKS_NAMES, look.clock), new Runnable() {
+        addAction(getString(R.string.row_clock) + ": " + Look.nameOf(Look.CLOCKS, Look.CLOCKS_NAMES, look.clock), new Runnable() {
             @Override public void run() {
                 look.clock = Look.nextOf(Look.CLOCKS, look.clock);
                 applyLookChange();
             }
-        });        addAction(sharp ? "Styl: Ostry (dotknij, aby zmienić)" : "Styl: Szkło (dotknij, aby zmienić)", new Runnable() {
+        });
+        addAction(getString(sharp ? R.string.style_sharp : R.string.style_glass), new Runnable() {
             @Override public void run() { toggleStyle(); }
         });
-        addAction("EFS Studio TV jako ekran główny (system)", new Runnable() {
+        addAction(getString(R.string.action_home_role), new Runnable() {
             @Override public void run() { requestHomeRole(); }
         });
-        addAction("Interfejs Sony (Google TV)", new Runnable() {
+        addAction(getString(R.string.row_stock_ui), new Runnable() {
             @Override public void run() { openSonyUi(); }
         });
-        addAction("Ustawienia telewizora", new Runnable() {
+        addAction(getString(R.string.row_tv_settings), new Runnable() {
             @Override public void run() { openSystemSettings(); }
         });
     }
@@ -1206,11 +1217,18 @@ public class MainActivity extends Activity {
     /** Wyjasnia, ze przelaczenie ekranu glownego wymaga ADB — aplikacja nie ma tego uprawnienia. */
     private void showHomeSwitchInfo() {
         new android.app.AlertDialog.Builder(this)
-                .setTitle("Przełączenie ekranu głównego")
-                .setMessage("Android pozwala, żeby tylko jedna aplikacja była ekranem głównym."
-                        + "\n\nJeśli systemowy dialog nie pomógł, potrzebna jest komenda ADB:\n"
-                        + "pm disable-user --user 0 com.google.android.tvlauncher")
-                .setPositiveButton("OK", null)
+                .setTitle(R.string.home_switch_title)
+                .setMessage(R.string.home_switch_msg)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+    }
+
+    /** The stock home screen is disabled (that's how EFS Studio TV becomes the home screen) — explain how to bring it back. */
+    private void showStockUiDisabled() {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.stock_ui_off_title)
+                .setMessage(R.string.stock_ui_off_msg)
+                .setPositiveButton(R.string.ok, null)
                 .show();
     }
 
@@ -1225,7 +1243,7 @@ public class MainActivity extends Activity {
                     startActivityForResult(rm.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME), 1001);
                     return;
                 }
-                android.widget.Toast.makeText(this, "EFS Studio TV jest już domyślnym ekranem głównym",
+                android.widget.Toast.makeText(this, R.string.toast_already_home,
                         android.widget.Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -1244,10 +1262,10 @@ public class MainActivity extends Activity {
                     "com.google.android.tvlauncher.MainActivity"));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-            android.widget.Toast.makeText(this, "HOME wraca do EFS Studio TV", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(this, R.string.toast_home_returns, android.widget.Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            android.util.Log.e("EFSHome", "brak launchera Sony", e);
-            showHomeSwitchInfo();
+            android.util.Log.e("EFSHome", "stock launcher not available", e);
+            showStockUiDisabled();
         }
     }
     /** Wiersz ustawien, ktory da sie kliknac (akcja). */
@@ -1324,6 +1342,9 @@ public class MainActivity extends Activity {
 
     private void loadContinueWatching() {
         continueItems.clear();
+        // Watch Next and PreviewPrograms exist from Android 8 (API 26). On older systems the
+        // classes are missing (NoClassDefFoundError is not an Exception) — the row stays empty.
+        if (Build.VERSION.SDK_INT < 26) return;
         try {
             String[] projection = {
                     android.media.tv.TvContract.WatchNextPrograms._ID,

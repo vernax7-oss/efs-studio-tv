@@ -4,44 +4,45 @@
 
 Nine home screen layouts. Each one builds the whole screen on its own (tiles, labels, placement)
 in `HomeLayouts.java`, using the same app data and the same look options from `Look.java`.
-The interface is in Polish for now — Polish names are shown in parentheses.
+The interface follows the TV's system language (English, Polish, German, French, Spanish, Italian;
+English for any other language). Names below are the English ones.
 
 ## Switching with the remote
 
-1. Press **MENU** (or go ↑ to the pills at the top and choose "Wygląd" / Look) — the panel slides in from the right.
-2. In the panel: **↑/↓** move between rows, **←/→** change the value, **OK** on "Układ" (Layout),
-   "Tło" (Background) and "Projekt" (Preset) opens a list.
+1. Press **MENU** (or go ↑ to the pills at the top and choose **Look**) — the panel slides in from the right.
+2. In the panel: **↑/↓** move between rows, **←/→** change the value, **OK** on **Layout**,
+   **Background** and **Preset** opens a list.
 3. **BACK** closes the list, a second BACK closes the panel.
 
 ## Layouts
 
 | # | Layout (id) | What it looks like |
 |---|---|---|
-| 1 | **Grid** (`grid`, *Siatka*) | 5 tiles per row with labels under them, scrolls vertically, "Continue watching" row on top |
-| 2 | **Icons** (`icons`, *Ikony*) | square icons, 6 per row, scrolls vertically |
+| 1 | **Grid** (`grid`) | 5 tiles per row with labels under them, scrolls vertically, "Continue watching" row on top |
+| 2 | **Icons** (`icons`) | square icons, 6 per row, scrolls vertically |
 | 3 | **Minimal** (`minimal`) | app names only, large text, no tiles |
-| 4 | **Logos** (`logos`, *Logotypy*) | logos only in one row at the bottom, big clock in the middle |
-| 5 | **Spotlight** (`spotlight`, *Reflektor*) | one big tile in the middle and a strip of logos |
-| 6 | **Mosaic** (`mosaic`, *Mozaika*) | one big tile + a column + a row of four, mixed sizes |
-| 7 | **Side panel** (`sidebar`, *Panel boczny*) | app list on the left, large preview on the right |
-| 8 | **Dock** (`dock`, *Dok*) | a row of tiles along the bottom edge, big clock in the middle |
-| 9 | **Arc** (`arc`, *Łuk*) | a carousel along an arc, selected app on top, "Continue watching" tile below; smooth animation |
+| 4 | **Logos** (`logos`) | logos only in one row at the bottom, big clock in the middle |
+| 5 | **Spotlight** (`spotlight`) | one big tile in the middle and a strip of logos |
+| 6 | **Mosaic** (`mosaic`) | one big tile + a column + a row of four, mixed sizes |
+| 7 | **Side panel** (`sidebar`) | app list on the left, large preview on the right |
+| 8 | **Dock** (`dock`) | a row of tiles along the bottom edge, big clock in the middle |
+| 9 | **Arc** (`arc`) | a carousel along an arc, selected app on top, "Continue watching" tile below; smooth animation |
 
 ## Look options (panel)
 
-| Row (Polish) | Values |
+| Row | Values |
 |---|---|
-| Preset (*Projekt*) | ready-made combinations of layout, tiles, labels, font, clock and background |
-| Layout (*Układ*) | the 9 layouts above |
-| Background (*Tło*) | blurred poster of the selected app + 16 photos, with a thumbnail |
-| Tiles (*Kafelki*) | Glass · Frost · Dark · Clear · App color |
-| Labels (*Etykiety*) | Logo and name · Logo only · Name only |
-| Logo color (*Kolor logo*) | App color · Outline (white line drawing) · Full tile (app banner) |
-| Font (*Czcionka*) | Modern · Elegant · Rounded · Condensed |
-| Clock (*Zegar*) | Large · Small · Hidden |
-| Continue watching (*Kontynuuj oglądanie*) | Show · Hide |
-| About (*O programie*) | version, model, system, number of apps |
-| Sony interface / TV settings | open the stock interface (if enabled) or the system settings |
+| Preset | ready-made combinations of layout, tiles, labels, font, clock and background |
+| Layout | the 9 layouts above |
+| Background | blurred poster of the selected app + 16 photos, with a thumbnail |
+| Tiles | Glass · Frost · Dark · Clear · App color |
+| Labels | Logo and name · Logo only · Name only |
+| Logo style | App color · Outline (white line drawing) · Full tile (app banner) |
+| Font | Modern · Elegant · Rounded · Condensed |
+| Clock | Large · Small · Hidden |
+| Continue watching | Show · Hide |
+| About | version, model, system, number of apps |
+| Stock interface / TV settings | open the stock home screen (if it is enabled) or the system settings |
 
 ## Testing layouts over ADB
 

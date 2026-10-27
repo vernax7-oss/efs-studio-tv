@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio — Italiano -->
+<resources>
+    <string name="wd_running">EFS Wi-Fi Watchdog è attivo</string>
+    <string name="wd_info">Con lo schermo acceso controlla Internet ogni 20 s. Dopo 2 controlli falliti spegne e riaccende il Wi-Fi (al massimo 3 volte per accensione). Si avvia da solo all\'accensione del televisore. BACK chiude questa schermata.</string>
+    <string name="wd_log_empty">(il registro è ancora vuoto)</string>
+    <string name="wd_log_error">(impossibile leggere il registro: %1$s)</string>
+    <string name="wd_log_latest">Ultime voci del registro:</string>
+    <string name="wd_channel">Controllo Wi-Fi</string>
+    <string name="wd_channel_desc">Riavvia il Wi-Fi quando dopo lo standby non c\'è Internet</string>
+    <string name="wd_notification">Mantiene attiva la connessione a Internet</string>
+</resources>

@@ -20,17 +20,32 @@ In the examples the TV's address is `192.168.1.50` — use yours.
 
 ## 1. Turn on debugging on the TV
 
-1. Settings → **Device Preferences** → **About** → click **Build** 7 times.
-   A message says you are now a developer.
-2. Settings → Device Preferences → **Developer options** → turn on **USB debugging**.
-   On Sony this is enough for ADB over the network. On Google TV also turn on **Wireless debugging**.
-3. Find the TV's IP address: Settings → Network & Internet → your network.
+1. Settings → **Device Preferences** → **About**. Note the **Android TV OS version** (minimum 6.0;
+   what works on which version: [README](../README.md#android-versions)). The first letter of the
+   **build number** tells you the same: `P` = 9, `Q` = 10, `R` = 11, `S` = 12, `U` = 14.
+2. On the same screen click **Build** 7 times. A message says you are now a developer.
+3. Settings → Device Preferences → **Developer options** → turn on **USB debugging**.
+   On Android 6–10 (e.g. Sony 2015–2020) this is enough for ADB over the network.
+   On Android 11+ (most Google TV models) also turn on **Wireless debugging**.
+4. Find the TV's IP address: Settings → Network & Internet → your network.
 
 ## 2. Connect
+
+**Android 6–10:**
 
 ```powershell
 adb connect 192.168.1.50:5555
 ```
+
+**Android 11 and newer** (Wireless debugging): open Developer options → Wireless debugging →
+*Pair device with pairing code*. The TV shows an address with a port and a 6-digit code:
+
+```powershell
+adb pair 192.168.1.50:37123        # port and code from the pairing screen
+adb connect 192.168.1.50:41234     # port shown on the main Wireless debugging screen
+```
+
+On Android 11+ use that `IP:port` everywhere this guide says `192.168.1.50:5555`.
 
 The TV asks for permission — tick **Always allow from this computer** and confirm.
 Check: `adb devices` should list the TV as `device`.

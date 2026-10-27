@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © EFS Studio — Italiano -->
+<resources>
+    <string name="tab_you">Per te</string>
+    <string name="tab_settings">Aspetto</string>
+    <string name="row_picks">Scelti per te</string>
+    <string name="row_continue">Continua a guardare</string>
+    <string name="row_apps">Le mie app</string>
+    <string name="title_settings">Impostazioni</string>
+    <string name="action_open">Apri</string>
+    <string name="continue_none">Continua a guardare — ancora niente</string>
+    <string name="continue_item">Continua: %1$s</string>
+
+    <string name="panel_title">Cambia l\'aspetto</string>
+    <string name="panel_footer">Le frecce cambiano un\'impostazione. Le modifiche vengono salvate subito.</string>
+    <string name="panel_hint">↑↓ scegli   ←→ cambia   OK elenco   BACK esci</string>
+    <string name="row_preset">Modello</string>
+    <string name="preset_value">scegli un aspetto pronto</string>
+    <string name="preset_title">Aspetti pronti</string>
+    <string name="row_layout">Layout</string>
+    <string name="layout_title">Scegli un layout</string>
+    <string name="row_background">Sfondo</string>
+    <string name="background_title">Scegli uno sfondo</string>
+    <string name="row_tiles">Riquadri</string>
+    <string name="row_labels">Etichette</string>
+    <string name="row_logo">Stile del logo</string>
+    <string name="row_font">Carattere</string>
+    <string name="row_clock">Orologio</string>
+    <string name="row_about">Informazioni</string>
+    <string name="about_value">versione %1$s</string>
+    <string name="about_app">EFS Studio TV %1$s</string>
+    <string name="about_model">Modello: %1$s</string>
+    <string name="about_system">Sistema: Android %1$s (API %2$d)</string>
+    <string name="about_home">Schermata iniziale: %1$s</string>
+    <string name="about_apps">App: %1$d</string>
+    <string name="home_other">un\'altra app</string>
+    <string name="close">Chiudi</string>
+    <string name="row_stock_ui">Interfaccia originale</string>
+    <string name="row_tv_settings">Impostazioni TV</string>
+    <string name="open">apri</string>
+
+    <string name="settings_version">Versione di EFS Studio TV</string>
+    <string name="settings_home">Schermata iniziale</string>
+    <string name="home_other_check">un\'altra app (verifica)</string>
+    <string name="settings_model">Modello</string>
+    <string name="settings_system">Sistema</string>
+    <string name="settings_apps">App sullo schermo</string>
+    <string name="settings_order">Ordine personalizzato</string>
+    <string name="yes">sì</string>
+    <string name="no">no</string>
+    <string name="style_sharp">Stile: Netto (clic per cambiare)</string>
+    <string name="style_glass">Stile: Vetro (clic per cambiare)</string>
+    <string name="action_home_role">EFS Studio TV come schermata iniziale (sistema)</string>
+
+    <string name="home_switch_title">Cambiare la schermata iniziale</string>
+    <string name="home_switch_msg">Android consente una sola app come schermata iniziale.\n\nSe la finestra di sistema non è bastata, serve questo comando ADB:\npm disable-user --user 0 com.google.android.tvlauncher</string>
+    <string name="stock_ui_off_title">L\'interfaccia originale è disattivata</string>
+    <string name="stock_ui_off_msg">La schermata iniziale originale è disattivata — è così che EFS Studio TV è diventata la schermata iniziale — quindi non si può aprire.\n\nPer ripristinarla, esegui tramite ADB:\npm enable com.google.android.tvlauncher</string>
+    <string name="toast_already_home">EFS Studio TV è già la schermata iniziale predefinita</string>
+    <string name="toast_home_returns">HOME ti riporta a EFS Studio TV</string>
+    <string name="ok">OK</string>
+
+    <string-array name="layout_names">
+        <item>Griglia</item>
+        <item>Icone</item>
+        <item>Minimal</item>
+        <item>Loghi</item>
+        <item>Riflettore</item>
+        <item>Mosaico</item>
+        <item>Pannello laterale</item>
+        <item>Dock</item>
+        <item>Arco</item>
+    </string-array>
+    <string-array name="layout_hints">
+        <item>5 riquadri per riga, etichette sotto</item>
+        <item>icone quadrate, 6 per riga</item>
+        <item>solo nomi delle app, senza riquadri</item>
+        <item>solo loghi, orologio grande</item>
+        <item>un riquadro grande e una striscia di loghi</item>
+        <item>riquadro grande + colonna + fila di quattro</item>
+        <item>elenco delle app e grande anteprima</item>
+        <item>una fila di riquadri lungo il bordo inferiore</item>
+        <item>riquadri ad arco, quello scelto in alto</item>
+    </string-array>
+    <string-array name="tile_names">
+        <item>Vetro</item>
+        <item>Smerigliato</item>
+        <item>Scuro</item>
+        <item>Trasparente</item>
+        <item>Colore dell\'app</item>
+    </string-array>
+    <string-array name="label_names">
+        <item>Logo e nome</item>
+        <item>Solo logo</item>
+        <item>Solo nome</item>
+    </string-array>
+    <string-array name="logo_names">
+        <item>Colore dell\'app</item>
+        <item>Contorno</item>
+        <item>Riquadro intero</item>
+    </string-array>
+    <string-array name="font_names">
+        <item>Moderno</item>
+        <item>Elegante</item>
+        <item>Arrotondato</item>
+        <item>Compatto</item>
+    </string-array>
+    <string-array name="preset_names">
+        <item>Griglia classica</item>
+        <item>Icone</item>
+        <item>Minimal</item>
+        <item>Mosaico</item>
+        <item>Pannello laterale</item>
+        <item>Dock</item>
+        <item>Bianco e nero</item>
+    </string-array>
+    <string-array name="background_names">
+        <item>Locandina sfocata</item>
+        <item>Riva nella nebbia</item>
+        <item>Baia tranquilla</item>
+        <item>Bosco nella nebbia</item>
+        <item>Valle di montagna</item>
+        <item>Dune</item>
+        <item>Cime di granito</item>
+        <item>Città al tramonto</item>
+        <item>Ora dorata</item>
+        <item>Città in bianco e nero</item>
+        <item>Montagne in bianco e nero</item>
+        <item>Città sul fiume di notte</item>
+        <item>Cabriolet bianca</item>
+        <item>Sequoie in bianco e nero</item>
+        <item>Prato di margherite</item>
+        <item>Campi di tulipani</item>
+        <item>Lago di montagna</item>
+    </string-array>
+    <string-array name="continue_names">
+        <item>Mostra</item>
+        <item>Nascondi</item>
+    </string-array>
+    <string-array name="clock_names">
+        <item>Grande</item>
+        <item>Piccolo</item>
+        <item>Nascosto</item>
+    </string-array>
+</resources>

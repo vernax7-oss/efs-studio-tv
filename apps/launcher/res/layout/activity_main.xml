@@ -284,7 +284,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zmień wygląd"
+            android:text="@string/panel_title"
             android:textSize="24sp"
             android:textColor="#FFFFFFFF"
             android:layout_marginBottom="16dp" />
@@ -299,7 +299,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:text="Strzałki zmieniają ustawienie. Zmiany zapisują się od razu."
+            android:text="@string/panel_footer"
             android:textSize="11sp"
             android:textColor="#8AFFFFFF" />
     </LinearLayout>

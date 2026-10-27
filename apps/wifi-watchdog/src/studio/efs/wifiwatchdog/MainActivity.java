@@ -45,15 +45,13 @@ public class MainActivity extends Activity {
         box.setBackgroundColor(0xFF101216);
 
         TextView title = new TextView(this);
-        title.setText("EFS Wi-Fi Watchdog is running");
+        title.setText(R.string.wd_running);
         title.setTextSize(26);
         title.setTextColor(Color.WHITE);
         box.addView(title);
 
         TextView info = new TextView(this);
-        info.setText("While the screen is on, it checks the internet every 20 s. After 2 failed checks "
-                + "it turns Wi-Fi off and on again (at most 3 times per screen-on). "
-                + "It starts by itself when the TV boots. Press BACK to close this screen.");
+        info.setText(R.string.wd_info);
         info.setTextSize(15);
         info.setTextColor(0xCCFFFFFF);
         info.setPadding(0, pad / 3, 0, pad / 2);
@@ -74,7 +72,7 @@ public class MainActivity extends Activity {
 
     private String readLogTail() {
         File f = new File(getExternalFilesDir(null), WatchdogService.LOG_NAME);
-        if (!f.exists()) return "(the log is still empty)";
+        if (!f.exists()) return getString(R.string.wd_log_empty);
         ArrayDeque<String> tail = new ArrayDeque<String>();
         try {
             BufferedReader r = new BufferedReader(new FileReader(f));
@@ -85,9 +83,9 @@ public class MainActivity extends Activity {
             }
             r.close();
         } catch (Exception e) {
-            return "(cannot read the log: " + e.getMessage() + ")";
+            return getString(R.string.wd_log_error, e.getMessage());
         }
-        StringBuilder sb = new StringBuilder("Latest entries:\n");
+        StringBuilder sb = new StringBuilder(getString(R.string.wd_log_latest)).append('\n');
         for (String l : tail) sb.append(l).append('\n');
         return sb.toString();
     }

@@ -744,7 +744,7 @@ class HomeLayouts {
         column.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        TextView title = caption(a, look, "Kontynuuj oglądanie", 15, false);
+        TextView title = caption(a, look, a.getString(R.string.row_continue), 15, false);
         title.setTypeface(look.typeface());
         title.setPadding(a.dp(24), a.dp(4), 0, a.dp(14));
         column.addView(title);
@@ -887,7 +887,7 @@ class HomeLayouts {
                 nlp.bottomMargin = a.dp(8);
 
                 if (recent == null) {
-                    label.setText("Kontynuuj oglądanie — brak pozycji");
+                    label.setText(a.getString(R.string.continue_none));
                     last.addView(label, nlp);
                     return;
                 }
@@ -899,7 +899,7 @@ class HomeLayouts {
                     last.addView(img, new FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 }
-                label.setText("Kontynuuj: " + recent.title);
+                label.setText(a.getString(R.string.continue_item, recent.title));
                 last.addView(label, nlp);
                 last.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) { a.openContent(recent); }

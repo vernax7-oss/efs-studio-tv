@@ -15,38 +15,42 @@ import android.graphics.drawable.GradientDrawable;
 
 class Look {
 
+    // Ids are stored in preferences; the visible names come from res/values*/strings.xml
+    // (English by default, translated per system language) — see loadNames().
     static final String[] LAYOUTS = {"grid", "icons", "minimal", "logos", "spotlight", "mosaic", "sidebar", "dock", "arc"};
-    static final String[] LAYOUT_NAMES = {"Siatka", "Ikony", "Minimal", "Logotypy", "Reflektor", "Mozaika", "Panel boczny", "Dok", "Łuk"};
-
-    /** Krotki opis pod nazwa ukladu w liscie wyboru. */
-    static final String[] LAYOUT_HINTS = {
-            "5 kafli w rzędzie, podpisy pod kaflami",
-            "kwadratowe ikony 6 w rzędzie",
-            "same nazwy aplikacji, bez kafli",
-            "tylko znaki, wielki zegar",
-            "jeden duży kafel i pasek znaków",
-            "duży kafel + kolumna + rząd czterech",
-            "lista aplikacji i duży podgląd",
-            "rząd pięciu kafli przy dolnej krawędzi",
-            "kafle po łuku, wybrany na środku",
-    };
+    static String[] LAYOUT_NAMES;
+    /** Short description under the layout name in the pick list. */
+    static String[] LAYOUT_HINTS;
 
     static final String[] TILES = {"glass", "frost", "dark", "clear", "brand"};
-    static final String[] TILES_NAMES = {"Szkło", "Szron", "Ciemne", "Bez tła", "Kolor aplikacji"};
+    static String[] TILES_NAMES;
 
     static final String[] LABELS = {"both", "logo", "name"};
-    static final String[] LABELS_NAMES = {"Logo i nazwa", "Tylko logo", "Tylko nazwa"};
+    static String[] LABELS_NAMES;
 
     static final String[] LOGOS = {"color", "line", "full"};
-    static final String[] LOGOS_NAMES = {"Kolor aplikacji", "Kontur (linia)", "Ikona na całość"};
+    static String[] LOGOS_NAMES;
 
     static final String[] FONTS = {"modern", "elegant", "rounded", "grotesk"};
-    static final String[] FONTS_NAMES = {"Nowoczesna", "Elegancka", "Zaokrąglona", "Zwarta"};
+    static String[] FONTS_NAMES;
 
-    /** Gotowe zestawy wyglądu — jedno kliknięcie ustawia układ, kafle, etykiety, zegar i tło. */
-    static final String[] PRESET_NAMES = {
-            "Siatka klasyczna", "Ikony", "Minimal", "Mozaika", "Panel boczny", "Dok", "Czarno-białe",
-    };
+    /** Ready-made looks — one click sets layout, tiles, labels, clock and background. */
+    static String[] PRESET_NAMES;
+
+    /** Loads the visible names in the system language. Call before building the screen. */
+    static void loadNames(android.content.res.Resources r) {
+        LAYOUT_NAMES = r.getStringArray(R.array.layout_names);
+        LAYOUT_HINTS = r.getStringArray(R.array.layout_hints);
+        TILES_NAMES = r.getStringArray(R.array.tile_names);
+        LABELS_NAMES = r.getStringArray(R.array.label_names);
+        LOGOS_NAMES = r.getStringArray(R.array.logo_names);
+        FONTS_NAMES = r.getStringArray(R.array.font_names);
+        PRESET_NAMES = r.getStringArray(R.array.preset_names);
+        BACKGROUND_NAMES = r.getStringArray(R.array.background_names);
+        CONTINUE_NAMES = r.getStringArray(R.array.continue_names);
+        CLOCKS_NAMES = r.getStringArray(R.array.clock_names);
+    }
+
     static final String[][] PRESETS = {
             // layout, tiles, labels, logo, font, clock, background, continueRow
             {"grid", "glass", "both", "color", "modern", "show", "bg_03", "on"},
@@ -73,16 +77,13 @@ class Look {
     }
     static final String[] BACKGROUNDS = {"poster", "bg_01", "bg_02", "bg_03", "bg_04", "bg_05",
             "bg_06", "bg_07", "bg_08", "bg_09", "bg_10", "bg_11", "bg_12", "bg_13", "bg_14", "bg_15", "bg_16"};
-    static final String[] BACKGROUND_NAMES = {"Rozmyty plakat (nasz)", "Mglisty brzeg", "Cicha zatoka", "Las we mgle",
-            "Dolina górska", "Wydmy", "Granitowe szczyty", "Miasto o zmierzchu", "Złota godzina",
-            "Czarno-białe miasto", "Czarno-białe góry", "Miasto nocą nad rzeką", "Biały kabriolet",
-            "Czarno-białe sekwoje", "Łąka stokrotek", "Tulipanowe pola", "Górskie jezioro"};
+    static String[] BACKGROUND_NAMES;
 
     static final String[] CONTINUE = {"on", "off"};
-    static final String[] CONTINUE_NAMES = {"Pokazuj", "Ukryj"};
+    static String[] CONTINUE_NAMES;
 
     static final String[] CLOCKS = {"show", "small", "hide"};
-    static final String[] CLOCKS_NAMES = {"Duży", "Mały", "Ukryty"};
+    static String[] CLOCKS_NAMES;
 
     String layout = "grid";
     String tiles = "glass";

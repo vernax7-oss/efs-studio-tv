@@ -250,7 +250,7 @@ class Panel {
     /** Podpowiedź na dole panelu: jak chodzić pilotem. */
     private void addHint(LinearLayout box) {
         TextView hint = new TextView(box.getContext());
-        hint.setText("↑↓ wybór   ←→ zmiana   OK lista   BACK wyjście");
+        hint.setText(R.string.panel_hint);
         hint.setTextSize(10);
         hint.setTextColor(0x8AFFFFFF);
         hint.setPadding(a.dp(14), 0, 0, a.dp(6));

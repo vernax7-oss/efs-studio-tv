@@ -1,15 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- © EFS Studio -->
+<!-- © EFS Studio — default (English). Translations: values-pl, values-de, values-fr, values-es, values-it.
+     Android picks the file that matches the TV's system language; anything missing falls back to this one. -->
 <resources>
-    <string name="app_name">EFS Studio TV</string>
-    <string name="tab_you">Dla Ciebie</string>
-    <string name="tab_settings">Wygląd</string>
-    <string name="row_picks">Wybrane dla Ciebie</string>
-    <string name="row_continue">Kontynuuj oglądanie</string>
-    <string name="row_apps">Moje aplikacje</string>
-    <string name="title_settings">Ustawienia</string>
-    <string name="action_open">Uruchom</string>
+    <string name="app_name" translatable="false">EFS Studio TV</string>
+
+    <!-- top pills and rows -->
+    <string name="tab_you">For you</string>
+    <string name="tab_settings">Look</string>
+    <string name="row_picks">Picked for you</string>
+    <string name="row_continue">Continue watching</string>
+    <string name="row_apps">My apps</string>
+    <string name="title_settings">Settings</string>
+    <string name="action_open">Open</string>
+    <string name="continue_none">Continue watching — nothing yet</string>
+    <string name="continue_item">Continue: %1$s</string>
+
+    <!-- look panel -->
+    <string name="panel_title">Change the look</string>
+    <string name="panel_footer">Arrows change a setting. Changes are saved right away.</string>
+    <string name="panel_hint">↑↓ select   ←→ change   OK list   BACK exit</string>
+    <string name="row_preset">Preset</string>
+    <string name="preset_value">pick a ready-made look</string>
+    <string name="preset_title">Ready-made looks</string>
+    <string name="row_layout">Layout</string>
+    <string name="layout_title">Choose a layout</string>
+    <string name="row_background">Background</string>
+    <string name="background_title">Choose a background</string>
+    <string name="row_tiles">Tiles</string>
+    <string name="row_labels">Labels</string>
+    <string name="row_logo">Logo style</string>
+    <string name="row_font">Font</string>
+    <string name="row_clock">Clock</string>
+    <string name="row_about">About</string>
+    <string name="about_value">version %1$s</string>
+    <string name="about_app">EFS Studio TV %1$s</string>
+    <string name="about_model">Model: %1$s</string>
+    <string name="about_system">System: Android %1$s (API %2$d)</string>
+    <string name="about_home">Home screen: %1$s</string>
+    <string name="about_apps">Apps: %1$d</string>
+    <string name="home_other">another app</string>
+    <string name="close">Close</string>
+    <string name="row_stock_ui">Stock interface</string>
+    <string name="row_tv_settings">TV settings</string>
+    <string name="open">open</string>
+
+    <!-- settings screen -->
+    <string name="settings_version">EFS Studio TV version</string>
+    <string name="settings_home">Home screen</string>
+    <string name="home_other_check">another app (check)</string>
+    <string name="settings_model">Model</string>
+    <string name="settings_system">System</string>
+    <string name="settings_apps">Apps on screen</string>
+    <string name="settings_order">Custom order</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="style_sharp">Style: Sharp (click to change)</string>
+    <string name="style_glass">Style: Glass (click to change)</string>
+    <string name="action_home_role">Make EFS Studio TV the home screen (system)</string>
+
+    <!-- dialogs and messages -->
+    <string name="home_switch_title">Switching the home screen</string>
+    <string name="home_switch_msg">Android allows only one app to be the home screen.\n\nIf the system dialog didn\'t help, this ADB command is needed:\npm disable-user --user 0 com.google.android.tvlauncher</string>
+    <string name="stock_ui_off_title">The stock interface is turned off</string>
+    <string name="stock_ui_off_msg">The stock home screen is disabled — that is how EFS Studio TV became the home screen — so it can\'t be opened.\n\nTo bring it back, run over ADB:\npm enable com.google.android.tvlauncher</string>
+    <string name="toast_already_home">EFS Studio TV is already the default home screen</string>
+    <string name="toast_home_returns">HOME brings you back to EFS Studio TV</string>
+    <string name="ok">OK</string>
+
+    <!-- look options (order must match the ids in Look.java) -->
+    <string-array name="layout_names">
+        <item>Grid</item>
+        <item>Icons</item>
+        <item>Minimal</item>
+        <item>Logos</item>
+        <item>Spotlight</item>
+        <item>Mosaic</item>
+        <item>Side panel</item>
+        <item>Dock</item>
+        <item>Arc</item>
+    </string-array>
+    <string-array name="layout_hints">
+        <item>5 tiles per row, labels under the tiles</item>
+        <item>square icons, 6 per row</item>
+        <item>app names only, no tiles</item>
+        <item>logos only, big clock</item>
+        <item>one big tile and a strip of logos</item>
+        <item>big tile + a column + a row of four</item>
+        <item>app list and a large preview</item>
+        <item>a row of tiles along the bottom edge</item>
+        <item>tiles along an arc, the selected one on top</item>
+    </string-array>
+    <string-array name="tile_names">
+        <item>Glass</item>
+        <item>Frost</item>
+        <item>Dark</item>
+        <item>Clear</item>
+        <item>App color</item>
+    </string-array>
+    <string-array name="label_names">
+        <item>Logo and name</item>
+        <item>Logo only</item>
+        <item>Name only</item>
+    </string-array>
+    <string-array name="logo_names">
+        <item>App color</item>
+        <item>Outline</item>
+        <item>Full tile</item>
+    </string-array>
+    <string-array name="font_names">
+        <item>Modern</item>
+        <item>Elegant</item>
+        <item>Rounded</item>
+        <item>Condensed</item>
+    </string-array>
+    <string-array name="preset_names">
+        <item>Classic grid</item>
+        <item>Icons</item>
+        <item>Minimal</item>
+        <item>Mosaic</item>
+        <item>Side panel</item>
+        <item>Dock</item>
+        <item>Black and white</item>
+    </string-array>
+    <string-array name="background_names">
+        <item>Blurred poster</item>
+        <item>Misty shore</item>
+        <item>Quiet bay</item>
+        <item>Forest in the mist</item>
+        <item>Mountain valley</item>
+        <item>Dunes</item>
+        <item>Granite peaks</item>
+        <item>City at dusk</item>
+        <item>Golden hour</item>
+        <item>Black and white city</item>
+        <item>Black and white mountains</item>
+        <item>City by the river at night</item>
+        <item>White convertible</item>
+        <item>Black and white sequoias</item>
+        <item>Daisy meadow</item>
+        <item>Tulip fields</item>
+        <item>Mountain lake</item>
+    </string-array>
+    <string-array name="continue_names">
+        <item>Show</item>
+        <item>Hide</item>
+    </string-array>
+    <string-array name="clock_names">
+        <item>Large</item>
+        <item>Small</item>
+        <item>Hidden</item>
+    </string-array>
 </resources>
-
-
-

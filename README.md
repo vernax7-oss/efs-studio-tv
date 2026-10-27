@@ -44,6 +44,31 @@ Prefer doing it yourself? Step by step: [docs/INSTALL.md](docs/INSTALL.md).
 | **Amazon Fire TV** | ⚠️ installs, but newer Fire OS won't let you replace the home screen | ❌ |
 | **Samsung (Tizen), LG (webOS), Panasonic, Roku** | ❌ not Android — won't work | ❌ |
 
+### Android versions
+
+The minimum is **Android 6.0**. Tested on Android 10 (Sony KD-55XG9505, build `QTG3.200305.006`).
+
+| Android | Build starts with | Launcher | Scripts |
+|---|---|---|---|
+| 6.0 (API 23) | `M` | ✅ works — but no "Continue watching" row (Android has no Watch Next before 8) | ✅ optimization and telemetry; `-RestrictBackground` has no effect |
+| 7.0 / 7.1 (API 24–25) | `N` | ✅ same as 6.0 | same as 6.0 |
+| 8.0 / 8.1 (API 26–27) | `O` | ✅ everything, including Continue watching | same as 6.0 |
+| 9 (API 28) | `P` | ✅ everything | ✅ everything |
+| **10 (API 29)** | **`Q`** | ✅ **tested** | ✅ **tested**; `forget-network.ps1` works **only** here |
+| 11 (API 30) | `R` | ✅ should work (not tested yet) | ✅ should work |
+| 12 (API 31–32) | `S` | ✅ should work (Google TV) | ✅ should work |
+| 13 (API 33) | `T` | ✅ should work (rare on TVs) | ✅ should work |
+| 14 (API 34) | `U` | ✅ should work (Google TV) | ✅ should work |
+
+**How to find your version:** Settings → Device Preferences → **About** → *Android TV OS version*.
+Or look at the **build number** on the same screen (e.g. `QTG3.200305.006`) — its **first letter** is the version
+from the table: `M` = 6, `N` = 7, `O` = 8, `P` = 9, `Q` = 10, `R` = 11, `S` = 12, `T` = 13, `U` = 14. Over ADB: `adb shell getprop ro.build.version.release`.
+
+> On Android 11 and newer (most Google TV models) ADB over the network uses **Wireless debugging** with
+> a pairing code: `adb pair <IP>:<port>` first, then `adb connect`. See [docs/INSTALL.md](docs/INSTALL.md).
+
+Tested on another version or brand? Please report it (an issue or a PR) — this table grows with your help.
+
 ## What changes and what stays
 
 **Disabled (reversibly):**
@@ -69,9 +94,11 @@ and withdraw Sony's data collection consents in its privacy policy.
 - **Look:** 17 backgrounds (16 photos + a blurred poster), tiles Glass/Frost/Dark/Clear/App color,
   logos in color, as an outline or filling the whole tile, 4 fonts, clock large/small/hidden, ready-made presets.
 - **Continue watching** from the system's Watch Next data, for apps that provide it.
-- **Remote:** the MENU button (or the "Wygląd"/Look pill) opens the panel. ↑↓ select, ←→ change, OK list, BACK exit.
+- **Remote:** the MENU button (or the "Look" pill at the top) opens the panel. ↑↓ select, ←→ change, OK list, BACK exit.
+- **Languages:** English, Polish, German, French, Spanish, Italian. Android picks the TV's system language
+  automatically (Settings → Device Preferences → Language) — there is nothing to set. Any other language shows English.
+  Adding a language is one file — see [CONTRIBUTING.md](CONTRIBUTING.md#add-a-language).
 - No Google Play Services, no AndroidX, no Gradle — the APK is about 7 MB, mostly backgrounds.
-- The interface is currently in **Polish**. An English version is the first item on the wish list — see below.
 
 Layouts and options in detail: [docs/LAYOUTS.md](docs/LAYOUTS.md).
 
@@ -105,7 +132,7 @@ This project is meant to be tinkered with. The code is simple (plain Java and cl
 no frameworks), so a new layout, a new background or support for another TV brand is an evening's work.
 
 Ideas to start with:
-- **English interface** (with Polish kept as a translation) — the most wanted change,
+- **your language** — one translated `strings.xml` file,
 - **new home screen layouts** — each one is a single method in `HomeLayouts.java`,
 - **other brands** — package lists for optimization on Philips, TCL, Hisense, Xiaomi…,
 - **fixing known bugs** — listed in [CONTRIBUTING.md](CONTRIBUTING.md#known-bugs--good-first-issues),
