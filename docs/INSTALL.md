@@ -13,10 +13,18 @@ In the examples the TV's address is `192.168.1.50` — use yours.
 
 ## 0. What you need
 
-- A Windows PC on the same network as the TV.
+- A **Windows** PC on the same network as the TV. The scripts are PowerShell for Windows;
+  on macOS/Linux the `adb` commands work the same, but the `.ps1` scripts need porting (contributions welcome).
 - **Android SDK Platform-Tools** (`adb`) — [download](https://developer.android.com/tools/releases/platform-tools).
 - To build the APKs: **JDK 17** and the **Android SDK** with build-tools and platform android-29+
-  (easiest through Android Studio or `sdkmanager`).
+  (easiest through Android Studio or `sdkmanager`). If the project's GitHub **Releases** page has ready APKs,
+  you can download them and skip building.
+
+> **"Running scripts is disabled on this system"?** Windows blocks downloaded PowerShell scripts by default.
+> Allow them for the current window only (nothing changes permanently):
+> `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
+> If Windows still complains about a downloaded file, unblock the folder once:
+> `Get-ChildItem -Recurse | Unblock-File`
 
 ## 1. Turn on debugging on the TV
 
@@ -66,6 +74,11 @@ Keep it: it's your reference point if you ever need to restore something.
 adb -s 192.168.1.50:5555 install -r apps\launcher\build\app.apk
 ```
 
+> **The TV may show a Play Protect warning** ("Unsafe app blocked", "built for an older version of Android"…)
+> and `adb install` waits until you answer it. Choose **More details → Install anyway** on the TV.
+> It appears for every app installed outside the Play Store. EFS Studio TV collects no data and sends nothing
+> anywhere — see [Privacy](../README.md#privacy--what-the-apps-do-with-your-data).
+
 Check that it starts (the new home screen should appear on the TV):
 
 ```powershell
@@ -73,6 +86,13 @@ adb -s 192.168.1.50:5555 shell am start -n studio.efs.braviahome/.MainActivity
 ```
 
 **Don't continue if the launcher did not open.**
+
+On the first start the TV asks whether EFS Studio TV may access **TV listings** — allow it. That's what the
+"Continue watching" row reads (what you were watching in Netflix, YouTube…). You can also grant it over ADB:
+
+```powershell
+adb -s 192.168.1.50:5555 shell pm grant studio.efs.braviahome android.permission.READ_TV_LISTINGS
+```
 
 ## 5. Make it the home screen
 

@@ -1,0 +1,7 @@
+# © EFS Studio
+# Consistent line endings in the repository; images stay untouched.
+* text=auto
+*.ps1 text eol=crlf
+*.jpg binary
+*.png binary
+*.jks binary

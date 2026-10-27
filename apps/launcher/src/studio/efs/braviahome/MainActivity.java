@@ -189,6 +189,33 @@ public class MainActivity extends Activity {
         showScreen(SCREEN_YOU);
         renderHome();
         handler.post(clockTick);
+        askForTvListings();
+    }
+
+    private static final String TV_LISTINGS = "android.permission.READ_TV_LISTINGS";
+    private static final int REQ_TV_LISTINGS = 2001;
+
+    /**
+     * "Continue watching" reads other apps' Watch Next entries, which needs READ_TV_LISTINGS
+     * (a runtime permission from Android 8). Asked once; without it the row simply stays empty.
+     * Can also be granted over ADB: pm grant studio.efs.braviahome android.permission.READ_TV_LISTINGS
+     */
+    private void askForTvListings() {
+        if (Build.VERSION.SDK_INT < 26) return;
+        if (checkSelfPermission(TV_LISTINGS) == PackageManager.PERMISSION_GRANTED) return;
+        if (prefs.getBoolean("asked_tv_listings", false)) return;
+        prefs.edit().putBoolean("asked_tv_listings", true).apply();
+        requestPermissions(new String[]{TV_LISTINGS}, REQ_TV_LISTINGS);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode == REQ_TV_LISTINGS && results.length > 0
+                && results[0] == PackageManager.PERMISSION_GRANTED) {
+            loadContinueWatching();
+            renderHome();
+        }
     }
 
     /** Podgląd układu z ADB: am start ... --es layout dock (do zdjęć i testów, bez wpływu na UI). */

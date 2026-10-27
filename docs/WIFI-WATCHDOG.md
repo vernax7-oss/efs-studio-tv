@@ -39,6 +39,10 @@ the USB bus (MediaTek MT7663) and does not always come back cleanly after standb
 It needs `targetSdk 28` (that's why it is a separate app) — Android only lets apps targeting API 28
 or lower switch Wi-Fi on and off.
 
+**Android versions:** runs on Android 6.0 and newer; tested on Android 10 (Sony KD-55XG9505).
+The interface follows the TV's language (English, Polish, German, French, Spanish, Italian);
+log entries are always in English so they can be compared and shared.
+
 ## Install by hand
 
 ```powershell
@@ -47,6 +51,9 @@ adb -s 192.168.1.50:5555 install -r apps\wifi-watchdog\build\app.apk
 # open it once — Android doesn't start an app at boot until it has been launched at least once
 adb -s 192.168.1.50:5555 shell am start -n studio.efs.wifiwatchdog/.MainActivity
 ```
+
+If the TV shows a Play Protect warning, choose **Install anyway** — the watchdog has no internet permission
+and sends nothing anywhere ([Privacy](../README.md#privacy--what-the-apps-do-with-your-data)).
 
 Read the log:
 
@@ -78,7 +85,8 @@ Rules:
 3. Don't change the router's settings yourself — if something there needs changing, tell me what.
 
 Order:
-a) Connect (adb connect <IP>:5555), read the model and Android version.
+a) Connect (adb connect <IP>:5555; on Android 11+ guide me through Wireless debugging pairing:
+   adb pair, then adb connect), read the model and Android version.
 b) Read the network state: saved networks (dumpsys wifi | grep -E '^ID: [0-9]+ SSID'),
    the current connection, signal strength, IP and DNS, whether the network is VALIDATED
    (dumpsys connectivity), standby and wake-up history if available.
@@ -87,7 +95,8 @@ c) Look for causes: old or foreign saved networks (especially with a static IP),
 d) If there are unused saved networks — propose removing them (on Android 10:
    tools/forget-network.ps1).
 e) If the problem can be the TV's Wi-Fi not recovering after standby — propose the watchdog:
-   build apps/wifi-watchdog (build.ps1), install it, launch it once (am start) and check
+   build apps/wifi-watchdog (build.ps1), install it (warn me first about the Play Protect warning —
+   I should choose "Install anyway" on the TV), launch it once (am start) and check
    that the log was created.
 f) Tell me how to check later whether it helped (where the log is and what the entries mean)
    and how to remove the watchdog.

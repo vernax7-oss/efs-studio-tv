@@ -28,6 +28,7 @@ apps/launcher/                 the home screen (package studio.efs.braviahome)
   src/.../LineIcons.java       "Outline" logos (Sobel edges, oversampled for thin lines)
   src/.../ImageLoader.java     poster loading for Continue watching
   assets/bg_01..16.jpg         backgrounds (1920x1080 JPEG)
+  res/values*/strings.xml      all visible texts: English default + pl, de, fr, es, it
 apps/wifi-watchdog/            optional Wi-Fi watchdog (separate app, targetSdk 28)
 tools/build-apk.ps1            build without Gradle (aapt2 -> javac -> d8 -> zipalign -> apksigner)
 tools/*.ps1                    snapshot, optimization, telemetry, forget-network (ADB scripts)

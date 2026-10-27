@@ -35,14 +35,20 @@ Rules (they apply for the whole job):
 Order:
 a) Check the tools on this computer: adb, JDK 17 (javac), Android SDK with build-tools and
    platform android-29+. If something is missing, tell me how to install it, or install it
-   with my approval.
+   with my approval. If PowerShell refuses to run the scripts, use
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass (current window only).
 b) Connect: adb connect <IP>:5555 (ask me to confirm the permission prompt on the TV screen).
+   If that fails and the TV runs Android 11 or newer, guide me through Wireless debugging:
+   adb pair <IP>:<pairing port> with the code from the TV, then adb connect <IP>:<port>.
    Read the model, Android version and whether it is Android TV or Google TV
    (getprop ro.product.model, ro.build.version.release, the stock launcher:
    cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME).
 c) Take a snapshot: tools/snapshot.ps1 -Dev <IP>:5555.
-d) Build the launcher (apps/launcher/build.ps1), install it (adb install -r), start it with
-   am start and check that it works (screenshot: adb shell screencap).
+d) Build the launcher (apps/launcher/build.ps1), install it (adb install -r) — before installing, tell me
+   that the TV may show a Play Protect warning and that I should choose "Install anyway" on the TV
+   (the app collects no data; see README "Privacy"). Then grant the permission
+   for the "Continue watching" row (pm grant studio.efs.braviahome android.permission.READ_TV_LISTINGS),
+   start it with am start and check that it works (screenshot: adb shell screencap).
 e) Make it the home screen with pm disable-user on the stock launcher found in step b).
    Check with HOME (adb shell input keyevent KEYCODE_HOME + a screenshot).
 f) Optimization: show me the tools/optimize.ps1 switches with a short explanation and ask which

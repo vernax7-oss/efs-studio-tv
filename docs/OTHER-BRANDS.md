@@ -2,7 +2,8 @@
 
 © EFS Studio
 
-The launcher works on any TV or box with **Android TV or Google TV** (Android 6 or newer).
+The launcher works on any TV or box with **Android TV or Google TV** (Android 6 or newer —
+what works on which version: [README](../README.md#android-versions)).
 Three things differ between brands:
 
 1. **The stock home screen's name** — it has to be disabled so that HOME opens EFS Studio TV.
@@ -72,12 +73,16 @@ Rules:
 
 Order:
 a) Check the tools on this computer (adb, JDK 17, Android SDK with build-tools and platform android-29+).
-b) Connect (adb connect <IP>:5555). Read: ro.product.brand, ro.product.model,
+   If PowerShell refuses to run the scripts: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass.
+b) Connect (adb connect <IP>:5555; on Android 11+ guide me through Wireless debugging:
+   adb pair <IP>:<pairing port> with the code from the TV, then adb connect). Read: ro.product.brand, ro.product.model,
    ro.build.version.release, whether it's Android TV or Google TV, the list of home screens
    (cmd package query-activities ... category.HOME) and the list of all packages (pm list packages -f).
 c) Snapshot: tools/snapshot.ps1 -Dev <IP>:5555.
-d) Build and install the launcher (apps/launcher/build.ps1, adb install -r), start it with am start,
-   check with a screenshot.
+d) Build and install the launcher (apps/launcher/build.ps1, adb install -r; warn me first that the TV
+   may show a Play Protect warning and I should choose "Install anyway"), grant
+   pm grant studio.efs.braviahome android.permission.READ_TV_LISTINGS (for "Continue watching"),
+   start it with am start, check with a screenshot.
 e) Disable the stock home screens found in b) and check with HOME. If the vendor restores its
    launcher (e.g. Fire TV) — tell me and don't fight the system.
 f) Optimization: from the package list, prepare a table of candidates to disable

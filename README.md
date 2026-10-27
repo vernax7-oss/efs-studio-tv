@@ -102,6 +102,31 @@ and withdraw Sony's data collection consents in its privacy policy.
 
 Layouts and options in detail: [docs/LAYOUTS.md](docs/LAYOUTS.md).
 
+## Privacy — what the apps do with your data
+
+**Nothing leaves your TV.** No analytics, no tracking, no accounts, no server of ours — there isn't one.
+You can check it yourself: the whole source code is here, and it's small.
+
+- **Launcher:** reads the list of installed apps and the system's "Continue watching" entries (Watch Next) to show them
+  on screen. Its only network use is downloading the **poster images** for that row — from the addresses the
+  streaming apps themselves put there (Netflix, YouTube…). Your settings are stored only on the TV.
+- **Wi-Fi watchdog:** has **no internet permission at all**. It only checks whether the network works and writes a log
+  on the TV.
+- **Scripts:** run on your computer and talk only to your TV over ADB. Their output (snapshot, undo files) stays in
+  the `local/` folder, which is never committed to Git.
+
+## "Unsafe app" / Play Protect warning when installing
+
+When you install the APK, Android (Google **Play Protect**) may show a warning such as *"Unsafe app blocked"*,
+*"This app was built for an older version of Android"* or *"Play Protect doesn't recognize this app"*.
+**This is normal for any app installed outside the Play Store** — Play Protect simply doesn't know it.
+The apps target an older Android API on purpose (the watchdog needs it to switch Wi-Fi), which also triggers
+the "older version" message.
+
+Choose **More details → Install anyway** (the wording differs slightly between TVs). If you're asked whether to
+send the app to Google for scanning, you can say no — it isn't needed. If you want to be sure, read the code or
+build the APK yourself from this repository.
+
 ## Safety — read before installing
 
 - Once the stock home screen is disabled, **EFS Studio TV is the only home screen**. If you uninstall it,
@@ -115,8 +140,10 @@ Layouts and options in detail: [docs/LAYOUTS.md](docs/LAYOUTS.md).
 
 ## Building
 
-Requirements: Windows, [Android SDK](https://developer.android.com/studio#command-line-tools-only)
+Requirements: Windows (PowerShell scripts — a macOS/Linux port is welcome),
+[Android SDK](https://developer.android.com/studio#command-line-tools-only)
 (build-tools + platform android-29 or newer, platform-tools), JDK 17.
+If PowerShell refuses to run the scripts: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`.
 
 ```powershell
 .\apps\launcher\build.ps1          # -> apps\launcher\build\app.apk
