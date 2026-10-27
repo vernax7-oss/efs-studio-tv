@@ -142,4 +142,5 @@
         <item>Petite</item>
         <item>Masquée</item>
     </string-array>
+    <string name="not_for_layout">sans effet dans cette disposition</string>
 </resources>

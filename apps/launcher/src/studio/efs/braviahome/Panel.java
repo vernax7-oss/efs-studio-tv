@@ -36,6 +36,13 @@ class Panel {
         void open() { }
         /** Miniatura po prawej (np. podgląd tła); null = brak. */
         android.graphics.drawable.Drawable thumb() { return null; }
+        /** false = the option doesn't apply to the current layout (row dimmed, arrows do nothing). */
+        boolean enabled() { return true; }
+    }
+
+    /** Value shown in the row: for an inactive option a clear note instead of the value. */
+    private String shownValue(Item item) {
+        return item.enabled() ? item.value() : a.getString(R.string.not_for_layout);
     }
 
     private final MainActivity a;
@@ -139,8 +146,8 @@ class Panel {
             row.setOnKeyListener(new View.OnKeyListener() {
                 @Override public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
-                    if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) { items.get(position).left(); refresh(); return true; }
-                    if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) { items.get(position).right(); refresh(); return true; }
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) { if (items.get(position).enabled()) items.get(position).left(); refresh(); return true; }
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) { if (items.get(position).enabled()) items.get(position).right(); refresh(); return true; }
                     return false;
                 }
             });
@@ -155,7 +162,8 @@ class Panel {
         for (int i = 0; i < items.size() && i < rowViews.size(); i++) {
             LinearLayout row = (LinearLayout) rowViews.get(i);
             TextView value = (TextView) row.getChildAt(3);
-            value.setText(items.get(i).value());
+            value.setText(shownValue(items.get(i)));
+            row.setAlpha(items.get(i).enabled() ? 1f : 0.45f);
             ImageView thumb = thumbViews.get(i);
             android.graphics.drawable.Drawable d = items.get(i).thumb();
             if (d != null) { thumb.setImageDrawable(d); thumb.setVisibility(View.VISIBLE); }
@@ -182,8 +190,8 @@ class Panel {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN: index = (index + 1) % items.size(); highlight(); return true;
             case KeyEvent.KEYCODE_DPAD_UP: index = (index - 1 + items.size()) % items.size(); highlight(); return true;
-            case KeyEvent.KEYCODE_DPAD_LEFT: items.get(index).left(); refresh(); return true;
-            case KeyEvent.KEYCODE_DPAD_RIGHT: items.get(index).right(); refresh(); return true;
+            case KeyEvent.KEYCODE_DPAD_LEFT: if (items.get(index).enabled()) items.get(index).left(); refresh(); return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT: if (items.get(index).enabled()) items.get(index).right(); refresh(); return true;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER: items.get(index).open(); refresh(); return true;
             default: return false;
@@ -231,8 +239,9 @@ class Panel {
     }
 
     private void focusPickerRow() {
-        if (pickerColumn != null && pickerIndex + 1 < pickerColumn.getChildCount()) {
-            pickerColumn.getChildAt(pickerIndex + 1).requestFocus();
+        // the rows live in pickerColumn without the header — row index = pickerIndex
+        if (pickerColumn != null && pickerIndex < pickerColumn.getChildCount()) {
+            pickerColumn.getChildAt(pickerIndex).requestFocus();
         }
     }
 

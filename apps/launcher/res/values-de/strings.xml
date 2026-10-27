@@ -142,4 +142,5 @@
         <item>Klein</item>
         <item>Ausgeblendet</item>
     </string-array>
+    <string name="not_for_layout">in diesem Layout nicht verwendet</string>
 </resources>

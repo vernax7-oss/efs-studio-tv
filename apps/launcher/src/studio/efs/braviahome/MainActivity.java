@@ -14,9 +14,11 @@ package studio.efs.braviahome;
 import android.app.Activity;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -122,7 +124,10 @@ public class MainActivity extends Activity {
         String label;
         String packageName;
         ComponentName component;
+        /** Icon with uniformly rounded corners — the one every layout shows. */
         Drawable icon;
+        /** The original icon (for the outline style, which traces the logo shape itself). */
+        Drawable rawIcon;
     }
 
     @Override
@@ -190,7 +195,36 @@ public class MainActivity extends Activity {
         renderHome();
         handler.post(clockTick);
         askForTvListings();
+
+        // newly installed and removed apps appear and disappear right away, without restarting the launcher
+        IntentFilter pkgFilter = new IntentFilter();
+        pkgFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        pkgFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        pkgFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        pkgFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        pkgFilter.addDataScheme("package");
+        registerReceiver(packageReceiver, pkgFilter);
     }
+
+    private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context context, Intent intent) {
+            // an install sends several broadcasts at once — reload once, after a short delay
+            handler.removeCallbacks(reloadApps);
+            handler.postDelayed(reloadApps, 800);
+        }
+    };
+
+    private final Runnable reloadApps = new Runnable() {
+        @Override public void run() {
+            apps.clear();
+            bannerCache.clear();
+            loadApps();
+            applySavedOrder();
+            buildAppRow(0);
+            renderHome();
+            android.util.Log.i("EFSHome", "app list reloaded: " + orderedApps.size());
+        }
+    };
 
     private static final String TV_LISTINGS = "android.permission.READ_TV_LISTINGS";
     private static final int REQ_TV_LISTINGS = 2001;
@@ -284,6 +318,8 @@ public class MainActivity extends Activity {
 
     protected void onDestroy() {
         handler.removeCallbacks(clockTick);
+        handler.removeCallbacks(reloadApps);
+        try { unregisterReceiver(packageReceiver); } catch (Exception ignored) { }
         super.onDestroy();
     }
 
@@ -427,6 +463,8 @@ public class MainActivity extends Activity {
             } catch (Exception ex) {
                 e.icon = getDrawable(R.drawable.ic_launcher);
             }
+            e.rawIcon = e.icon;
+            e.icon = roundedIcon(e.icon);
             apps.add(e);
         }
 
@@ -436,6 +474,64 @@ public class MainActivity extends Activity {
                 return collator.compare(a.label, b.label);
             }
         });
+    }
+
+    /**
+     * The same rounded corners for every icon. Some apps ship sharp squares, some rounded ones,
+     * and some a square with a transparent margin — so we first find the icon's visible
+     * rectangle and round its corners. Round and irregular icons (transparent corners) are
+     * left as they are.
+     */
+    private Drawable roundedIcon(Drawable icon) {
+        if (icon == null) return null;
+        try {
+            int size = 192;
+            Bitmap src = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(src);
+            icon.setBounds(0, 0, size, size);
+            icon.draw(c);
+
+            // visible rectangle (pixels with clear opacity)
+            int[] px = new int[size * size];
+            src.getPixels(px, 0, size, 0, 0, size, size);
+            int left = size, top = size, right = -1, bottom = -1;
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    if ((px[y * size + x] >>> 24) > 40) {
+                        if (x < left) left = x;
+                        if (x > right) right = x;
+                        if (y < top) top = y;
+                        if (y > bottom) bottom = y;
+                    }
+                }
+            }
+            if (right < 0) return icon;
+            int w = right - left + 1, h = bottom - top + 1;
+            // only square icons with filled corners get rounded
+            int inset = Math.max(2, Math.min(w, h) / 24);
+            boolean squareCorners = opaque(px, size, left + inset, top + inset)
+                    && opaque(px, size, right - inset, top + inset)
+                    && opaque(px, size, left + inset, bottom - inset)
+                    && opaque(px, size, right - inset, bottom - inset);
+            if (!squareCorners) return new BitmapDrawable(getResources(), src);
+
+            Bitmap out = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            Canvas oc = new Canvas(out);
+            android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+            float r = Math.min(w, h) * 0.2f;
+            oc.drawRoundRect(new android.graphics.RectF(left, top, right + 1, bottom + 1), r, r, paint);
+            paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN));
+            oc.drawBitmap(src, 0, 0, paint);
+            src.recycle();
+            return new BitmapDrawable(getResources(), out);
+        } catch (Exception ex) {
+            return icon;
+        }
+    }
+
+    private static boolean opaque(int[] px, int size, int x, int y) {
+        if (x < 0 || y < 0 || x >= size || y >= size) return false;
+        return (px[y * size + x] >>> 24) > 200;
     }
 
     /** Kolejność: najpierw zapisana przez właściciela, potem reszta wg użycia. */
@@ -755,12 +851,21 @@ public class MainActivity extends Activity {
     }
 
     void renderHome() {
+        // current look in logcat — for checking remote changes and restoring after tests
+        android.util.Log.i("EFSHome", "look layout=" + look.layout + " tiles=" + look.tiles
+                + " labels=" + look.labels + " logo=" + look.logo + " font=" + look.font
+                + " clock=" + look.clock + " bg=" + look.background + " continue=" + look.continueRow);
         boolean centeredClock = "logos".equals(look.layout) || "dock".equals(look.layout);
-        boolean hideClock = "hide".equals(look.clock) || "minimal".equals(look.layout);
+        boolean hideClock = "hide".equals(look.clock);
         clock.setVisibility(hideClock || centeredClock ? View.GONE : View.VISIBLE);
-        clock.setTextSize("small".equals(look.clock) ? 28 : 54);
+        boolean smallClock = "small".equals(look.clock) || look.smallClockOnly();
+        clock.setTextSize(smallClock ? 28 : 54);
         if (clockDate != null) clockDate.setVisibility(hideClock || centeredClock ? View.GONE : View.VISIBLE);
         clockHero.setVisibility(hideClock || !centeredClock ? View.GONE : View.VISIBLE);
+        clockHeroTime.setTextSize("small".equals(look.clock) ? 60 : 104);
+        clockHeroDate.setTextSize("small".equals(look.clock) ? 15 : 20);
+        // the pill names the current layout — you can see which screen you return to and what you switch
+        tabYou.setText(Look.nameOf(Look.LAYOUTS, Look.LAYOUT_NAMES, look.layout));
 
         // Stare widoki siatki nie są już używane — każdy launcher buduje HomeLayouts.
         rowTitle.setVisibility(View.GONE);
@@ -857,6 +962,7 @@ public class MainActivity extends Activity {
             card.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
                     animateFocus(v, hasFocus);
+                    HomeLayouts.ring(MainActivity.this, v, hasFocus, 13);   // widoczna ramka nad plakatem
                     if (hasFocus) setBackdropPoster(entry.poster);
                 }
             });
@@ -900,11 +1006,13 @@ public class MainActivity extends Activity {
     void filterContinue(String packageName) {
         if (homeContinueRow == null) return;
         List<ContentEntry> items = continueFor(packageName);
-        populateContinue(homeContinueRow, items, look);
+        // INVISIBLE, not GONE, and the cards are kept: the row keeps its height, so the tiles
+        // below don't jump when the focused app has nothing to continue
         boolean visible = !items.isEmpty();
-        if (homeContinueTitle != null) homeContinueTitle.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (visible) populateContinue(homeContinueRow, items, look);
+        if (homeContinueTitle != null) homeContinueTitle.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
         View parent = (View) homeContinueRow.getParent();
-        if (parent != null) parent.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (parent != null) parent.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
     /** Mieszanie kolorów: share=0 to kolor bazowy, share=1 to drugi kolor. */
@@ -974,6 +1082,15 @@ public class MainActivity extends Activity {
 
     void onPanelClosed() {
         if (!orderedApps.isEmpty()) updateBackdrop(orderedApps.get(0));
+        // fokus wraca na kafle — inaczej zostaje na ukrytym paseczku i nic nie jest zaznaczone
+        homeHost.post(new Runnable() {
+            @Override public void run() { HomeLayouts.focusFirst(homeHost); }
+        });
+    }
+
+    /** Whether the Look panel (or its pick list) is on screen. */
+    boolean panelShown() {
+        return panel != null && (panel.isOpen() || panel.isPickerOpen());
     }
 
     /** Miniatura wybranego tła (mały odczyt z assets, cache w pamięci). */
@@ -1114,16 +1231,24 @@ public class MainActivity extends Activity {
     private Panel.Item cycle(final int labelRes, final String field, final String[] values, final String[] names) {
         return new Panel.Item() {
             @Override String label() { return getString(labelRes); }
-            @Override String value() { return Look.nameOf(values, names, get()); }
+            @Override String value() { return Look.nameOf(values, names, shown(get())); }
+            @Override boolean enabled() { return Look.applies(look.layout, field); }
             @Override void left() { step(-1); }
             @Override void right() { step(1); }
             private void step(int direction) {
                 int at = 0;
-                for (int i = 0; i < values.length; i++) if (values[i].equals(get())) at = i;
+                for (int i = 0; i < values.length; i++) if (values[i].equals(shown(get()))) at = i;
                 at = (at + direction + values.length) % values.length;
+                // in a layout that only fits a small clock, "Large" is skipped — it would change nothing
+                if (!values[at].equals(shown(values[at]))) at = (at + direction + values.length) % values.length;
                 set(values[at]);
                 look.save(prefs);
                 renderHome();
+            }
+            /** The value the layout actually shows (Grid with the Continue row: large clock = small). */
+            private String shown(String value) {
+                if ("clock".equals(field) && "show".equals(value) && look.smallClockOnly()) return "small";
+                return value;
             }
             private String get() {
                 switch (field) {

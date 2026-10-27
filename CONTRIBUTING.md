@@ -84,18 +84,9 @@ Found during a full remote-control test on a Sony KD-55XG9505 (Android 10). Each
 
 | Where | Bug |
 |---|---|
-| Panel | The last two rows (Sony interface, TV settings) are below the screen edge; the panel doesn't scroll. |
-| Panel | After changing a value with ←/→ the row highlight disappears. |
-| Pick list | `Panel.focusPickerRow()` uses `pickerIndex + 1` on a column that no longer has a header — the highlight is one row below the item that OK selects. |
-| Presets | "Black and white" sets `logo = "white"`, which no longer exists in `Look.LOGOS` — logos stay in color. |
-| Arc | The "Continue watching" tile under the arc ignores Continue watching → Hide. |
-| Grid | The "Continue watching" row lives inside the scrolling column and changes height with focus — the focused tile can jump off screen. |
-| Logos | Hard-coded to 10 apps with no scrolling; the row is wider than the screen, both ends are clipped. |
-| Spotlight | Only 9 apps reachable; → at the end of the strip jumps to the "Look" pill. |
 | Side panel | → from the list jumps to the pills instead of the preview. |
-| Icons, Spotlight | With clear tiles, the focused tile is barely visible (no frame). |
-| Labels | "Name only" is ignored in Grid and Icons (they don't check `logoShown()`). |
-| Minimal, Logos | The panel lets you change options these layouts ignore (clock, tiles). |
+| Outline logos | Some icons trace poorly (Internet Browser is faint, Dashboard becomes a plain circle). |
+| Spotlight | With "Name only", the small chips in the strip still show logos. |
 | Code | Many code comments are still in Polish — English translations of comments are welcome. |
 
 ## Ideas

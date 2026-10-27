@@ -142,4 +142,5 @@
         <item>Pequeño</item>
         <item>Oculto</item>
     </string-array>
+    <string name="not_for_layout">no se usa en este diseño</string>
 </resources>

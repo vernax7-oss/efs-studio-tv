@@ -46,9 +46,10 @@ class HomeLayouts {
             case "arc": arc(a, host, look); break;
             default: grid(a, host, look); break;
         }
-        // fokus dopiero po ulozeniu widokow, inaczej zostaje na pastylkach
+        // fokus dopiero po ulozeniu widokow, inaczej zostaje na pastylkach;
+        // przy otwartym panelu wygladu fokus zostaje w panelu (podswietlenie paseczka)
         host.post(new Runnable() {
-            @Override public void run() { focusFirst(host); }
+            @Override public void run() { if (!a.panelShown()) focusFirst(host); }
         });
     }
 
@@ -56,15 +57,18 @@ class HomeLayouts {
 
     /** Siatka: 5 kafli w rzędzie (145×84 dp), podpis pod kaflem. */
     private static void grid(MainActivity a, LinearLayout host, Look look) {
-        // Wszystkie aplikacje w siatce, przewijane w pionie (wczesniej ucinalo sie na 10).
+        // The "Continue watching" row stays put; under it a window for exactly 2 rows of tiles,
+        // scrolled with the remote. The window clips rows outside it (they used to slide over the
+        // posters), and its margin leaves room for the focus frame and scale-up.
+        View cont = continueRow(a, look);
+        if (cont != null) host.addView(cont);
+
         ScrollView scroll = new ScrollView(a);
-        // Wysokosc = jeden rzad kafli + polowa nastepnego (wiecej wolnego pola na ekranie).
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, a.dp(372)));
+                ViewGroup.LayoutParams.MATCH_PARENT, a.dp(300)));
         scroll.setVerticalScrollBarEnabled(false);
-        scroll.setClipChildren(false);
         scroll.setClipToPadding(false);
-        scroll.setPadding(0, a.dp(8), 0, a.dp(8));
+        scroll.setPadding(0, a.dp(10), 0, a.dp(10));
 
         LinearLayout column = new LinearLayout(a);
         column.setOrientation(LinearLayout.VERTICAL);
@@ -91,12 +95,14 @@ class HomeLayouts {
 
             final GradientDrawable bg = look.tileBackground(a.dp(10), a.brandColor(app.packageName));
 
-            FrameLayout tile = new FrameLayout(a);
+            final FrameLayout tile = new FrameLayout(a);
             tile.setLayoutParams(new LinearLayout.LayoutParams(a.dp(160), a.dp(92)));
             tile.setBackground(bg);
 
             android.graphics.drawable.Drawable banner = look.fullLogo() ? a.bannerOf(app) : null;
-            if (banner != null) {
+            if (!look.logoShown()) {
+                tile.addView(nameInTile(a, look, app.label, 16));   // "Name only"
+            } else if (banner != null) {
                 // Tryb "na całość": cały kafel to grafika aplikacji (banner), przycięta do rogów.
                 RoundedImageView art = new RoundedImageView(a);
                 art.setImageDrawable(banner);
@@ -111,11 +117,13 @@ class HomeLayouts {
             }
             cell.addView(tile);
 
-            if (look.labelsShown()) cell.addView(caption(a, look, app.label, 14, true));
+            // caption under the tile only when the tile shows a logo ("Name only" puts the name inside)
+            if (look.labelsShown() && look.logoShown()) cell.addView(caption(a, look, app.label, 14, true));
 
             cell.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    bg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, tile, hasFocus, 10);
+                    if (hasFocus) keepRowInView(v);
                     v.setElevation(hasFocus ? a.dp(10) : 0);
                     v.animate().scaleX(hasFocus ? 1.06f : 1f).scaleY(hasFocus ? 1.06f : 1f)
                             .setDuration(130).start();
@@ -125,17 +133,9 @@ class HomeLayouts {
             cell.setOnClickListener(click(a, app));
             row.addView(cell);
         }
-        View cont = continueRow(a, look);
-        if (cont != null) {
-            cont.setPadding(0, a.dp(6), 0, 0);   // tytuł wyżej, żeby nie przycinał karty
-            column.addView(cont, 0);
-        }
         scroll.addView(column);
-        host.addView(scroll);
-        // start zawsze od góry listy
-        scroll.post(new Runnable() {
-            @Override public void run() { scroll.scrollTo(0, 0); }
-        });
+        host.addView(window(a, scroll));
+        fitRows(a, scroll, column, 2, 10);
     }
 
 
@@ -143,22 +143,21 @@ class HomeLayouts {
 
     /** Ikony: kwadratowe kafle z logo i nazwą pod spodem, 6 w rzędzie. */
     private static void icons(MainActivity a, LinearLayout host, Look look) {
-        // Wszystkie aplikacje, przewijane w pionie (wczesniej dzialalo tylko to, co widac).
+        // As in Grid: "Continue" stays put, under it a window for 2 rows of icons scrolled with the remote.
+        View cont = continueRow(a, look);
+        if (cont != null) host.addView(cont);
+
         ScrollView scroll = new ScrollView(a);
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, a.dp(372)));
+                ViewGroup.LayoutParams.MATCH_PARENT, a.dp(300)));
         scroll.setVerticalScrollBarEnabled(false);
-        scroll.setClipChildren(false);
         scroll.setClipToPadding(false);
-        scroll.setPadding(0, a.dp(6), 0, a.dp(6));
+        scroll.setPadding(0, a.dp(10), 0, a.dp(10));
 
         LinearLayout column = new LinearLayout(a);
         column.setOrientation(LinearLayout.VERTICAL);
         column.setClipChildren(false);
         column.setClipToPadding(false);
-
-        View cont = continueRow(a, look);
-        if (cont != null) column.addView(cont);
 
         LinearLayout row = null;
         for (int i = 0; i < a.orderedApps.size(); i++) {
@@ -178,24 +177,31 @@ class HomeLayouts {
             clp.setMargins(a.dp(10), a.dp(4), a.dp(10), a.dp(6));
             cell.setLayoutParams(clp);
 
-            FrameLayout tile = new FrameLayout(a);
+            final FrameLayout tile = new FrameLayout(a);
             tile.setLayoutParams(new LinearLayout.LayoutParams(a.dp(96), a.dp(96)));
             tile.setBackground(look.tileBackground(a.dp(22), a.brandColor(app.packageName)));
-            tile.addView(logo(a, look, app, 46));
+            if (look.logoShown()) tile.addView(logo(a, look, app, look.fullLogo() ? 42 : 46));
+            else tile.addView(nameInTile(a, look, app.label, 13));   // "Name only"
             cell.addView(tile);
 
-            if (look.labelsShown()) cell.addView(caption(a, look, app.label, 11, true));
+            if (look.labelsShown() && look.logoShown()) cell.addView(caption(a, look, app.label, 11, true));
 
-            cell.setOnFocusChangeListener(focus(a, app));
+            // focus: frame on the tile + slight scale-up (scale alone was barely visible)
+            cell.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override public void onFocusChange(View v, boolean hasFocus) {
+                    ring(a, tile, hasFocus, 22);
+                    if (hasFocus) keepRowInView(v);
+                    v.animate().scaleX(hasFocus ? 1.06f : 1f).scaleY(hasFocus ? 1.06f : 1f)
+                            .setDuration(110).start();
+                    a.focusTile(v, hasFocus, app);
+                }
+            });
             cell.setOnClickListener(click(a, app));
             row.addView(cell);
         }
         scroll.addView(column);
-        host.addView(scroll);
-        // start zawsze od góry listy
-        scroll.post(new Runnable() {
-            @Override public void run() { scroll.scrollTo(0, 0); }
-        });
+        host.addView(window(a, scroll));
+        fitRows(a, scroll, column, 2, 10);
     }
 
 
@@ -208,6 +214,9 @@ class HomeLayouts {
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, a.dp(372)));
         scroll.setVerticalScrollBarEnabled(false);
+        // a list longer than the screen fades out at the bottom instead of ending in a half-cut name
+        scroll.setVerticalFadingEdgeEnabled(true);
+        scroll.setFadingEdgeLength(a.dp(56));
         scroll.setClipChildren(false);
         scroll.setClipToPadding(false);
 
@@ -255,36 +264,57 @@ class HomeLayouts {
 
     /** Logotypy: same znaki bez nazw, jeden rząd przy dolnej krawędzi. */
     private static void logos(MainActivity a, LinearLayout host, Look look) {
+        // All apps in one row that scrolls sideways. The padding around the row leaves room for
+        // the focus frame and its scale-up — otherwise the screen mask clips it.
+        HorizontalScrollView scroll = new HorizontalScrollView(a);
+        scroll.setHorizontalScrollBarEnabled(false);
+        scroll.setFillViewport(true);       // few apps = centered row
+        scroll.setClipToPadding(false);
+        scroll.setClipChildren(false);
+        scroll.setPadding(a.dp(24), a.dp(8), a.dp(24), a.dp(16));
+        scroll.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
         LinearLayout row = new LinearLayout(a);
         row.setClipChildren(false);
         row.setClipToPadding(false);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_HORIZONTAL);
-        row.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        for (int i = 0; i < Math.min(a.orderedApps.size(), 10); i++) {
+        for (int i = 0; i < a.orderedApps.size(); i++) {
             final MainActivity.AppEntry app = a.orderedApps.get(i);
-            FrameLayout cell = new FrameLayout(a);
+            // cell = logo (tile in the chosen style) + optional name underneath
+            LinearLayout cell = new LinearLayout(a);
+            cell.setOrientation(LinearLayout.VERTICAL);
+            cell.setGravity(Gravity.CENTER_HORIZONTAL);
             cell.setFocusable(true);
             cell.setFocusableInTouchMode(true);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(a.dp(86), a.dp(72));
-            lp.setMargins(a.dp(9), 0, a.dp(9), 0);
+            cell.setClipChildren(false);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(a.dp(96), ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(a.dp(5), 0, a.dp(5), 0);
             cell.setLayoutParams(lp);
-            cell.setBackgroundResource(R.drawable.bg_logo_focus);
-            ImageView iv = new ImageView(a);
-            iv.setImageDrawable(app.icon);
-            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            if (look.whiteLogo()) iv.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-            FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(a.dp(54), a.dp(54));
-            ilp.gravity = Gravity.CENTER;
-            iv.setLayoutParams(ilp);
-            cell.addView(iv);
-            cell.setOnFocusChangeListener(focus(a, app));
+
+            final FrameLayout tile = new FrameLayout(a);
+            tile.setLayoutParams(new LinearLayout.LayoutParams(a.dp(86), a.dp(72)));
+            tile.setBackground(look.tileBackground(a.dp(16), a.brandColor(app.packageName)));
+            if (look.logoShown()) tile.addView(logo(a, look, app, look.fullLogo() ? 30 : 46));
+            else tile.addView(nameInTile(a, look, app.label, 12));   // "Name only"
+            cell.addView(tile);
+            if (look.labelsShown() && look.logoShown()) cell.addView(caption(a, look, app.label, 11, true));
+
+            cell.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override public void onFocusChange(View v, boolean hasFocus) {
+                    ring(a, tile, hasFocus, 16);
+                    v.animate().scaleX(hasFocus ? 1.06f : 1f).scaleY(hasFocus ? 1.06f : 1f)
+                            .setDuration(110).start();
+                    a.focusTile(v, hasFocus, app);
+                }
+            });
             cell.setOnClickListener(click(a, app));
             row.addView(cell);
         }
-        host.addView(row);
+        scroll.addView(row);
+        host.addView(scroll);
     }
 
     // ---------------------------------------------------------------- 5. Reflektor
@@ -298,11 +328,7 @@ class HomeLayouts {
         big.setLayoutParams(new LinearLayout.LayoutParams(a.dp(470), a.dp(264)));
         big.setFocusable(true);
         big.setFocusableInTouchMode(true);
-        int brand = a.brandColor(current[0].packageName);
-        final GradientDrawable bigBg = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR, new int[]{brand, a.shade(brand, 0.66f)});
-        bigBg.setCornerRadius(a.dp(22));
-        big.setBackground(bigBg);
+        big.setBackground(spotlightBackground(a, look, current[0]));
         fillTileContent(a, big, current[0], look, 132, true);
 
         LinearLayout center = new LinearLayout(a);
@@ -312,29 +338,47 @@ class HomeLayouts {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         center.addView(big);
 
-        LinearLayout strip = newRow(a, 18);
-        for (int i = 0; i < Math.min(a.orderedApps.size(), 9); i++) {
+        // Short strip under the tile (a window for 9 logos) in which all apps scroll.
+        // The window clips logos outside it and its edges fade — you can tell there are more.
+        HorizontalScrollView stripScroll = new HorizontalScrollView(a);
+        stripScroll.setHorizontalScrollBarEnabled(false);
+        stripScroll.setFillViewport(true);    // few apps = centered strip
+        stripScroll.setHorizontalFadingEdgeEnabled(true);
+        stripScroll.setFadingEdgeLength(a.dp(36));
+        stripScroll.setPadding(0, a.dp(4), 0, a.dp(8));
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                a.dp(9 * 72), ViewGroup.LayoutParams.WRAP_CONTENT);
+        slp.topMargin = a.dp(14);
+        slp.gravity = Gravity.CENTER_HORIZONTAL;
+        stripScroll.setLayoutParams(slp);
+
+        LinearLayout strip = new LinearLayout(a);
+        strip.setClipChildren(false);
+        strip.setClipToPadding(false);
+        strip.setOrientation(LinearLayout.HORIZONTAL);
+        strip.setGravity(Gravity.CENTER_HORIZONTAL);
+        stripScroll.addView(strip);
+
+        final java.util.List<View> chips = new java.util.ArrayList<View>();
+        for (int i = 0; i < a.orderedApps.size(); i++) {
             final MainActivity.AppEntry app = a.orderedApps.get(i);
-            FrameLayout chip = new FrameLayout(a);
+            final FrameLayout chip = new FrameLayout(a);
             chip.setFocusable(true);
             chip.setFocusableInTouchMode(true);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(a.dp(60), a.dp(60));
             lp.setMargins(a.dp(6), 0, a.dp(6), 0);
             chip.setLayoutParams(lp);
-            ImageView iv = new ImageView(a);
-            iv.setImageDrawable(app.icon);
-            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(a.dp(40), a.dp(40));
-            ilp.gravity = Gravity.CENTER;
-            iv.setLayoutParams(ilp);
-            chip.addView(iv);
+            // strip logo: tile style and logo style from the Look settings
+            chip.setBackground(look.tileBackground(a.dp(12), a.brandColor(app.packageName)));
+            chip.addView(logo(a, look, app, look.fullLogo() ? 26 : 36));
+            chip.setAlpha(0.75f);
             chip.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    v.setAlpha(hasFocus ? 1f : 0.7f);
+                    v.setAlpha(hasFocus ? 1f : 0.75f);
+                    ring(a, chip, hasFocus, 12);
                     if (hasFocus) {
                         current[0] = app;
-                        int b = a.brandColor(app.packageName);
-                        bigBg.setColors(new int[]{b, a.shade(b, 0.66f)});
+                        big.setBackground(spotlightBackground(a, look, app));
                         big.removeAllViews();
                         fillTileContent(a, big, app, look, 132, true);
                         a.updateBackdrop(app);
@@ -343,8 +387,30 @@ class HomeLayouts {
             });
             chip.setOnClickListener(click(a, app));
             strip.addView(chip);
+            chips.add(chip);
         }
-        center.addView(strip);
+        // Wrap-around: → on the last goes back to the first, ← on the first jumps to the last.
+        if (chips.size() > 1) {
+            final View first = chips.get(0);
+            final View last = chips.get(chips.size() - 1);
+            first.setOnKeyListener(new View.OnKeyListener() {
+                @Override public boolean onKey(View v, int keyCode, android.view.KeyEvent event) {
+                    if (event.getAction() != android.view.KeyEvent.ACTION_DOWN
+                            || keyCode != android.view.KeyEvent.KEYCODE_DPAD_LEFT) return false;
+                    last.requestFocus();
+                    return true;
+                }
+            });
+            last.setOnKeyListener(new View.OnKeyListener() {
+                @Override public boolean onKey(View v, int keyCode, android.view.KeyEvent event) {
+                    if (event.getAction() != android.view.KeyEvent.ACTION_DOWN
+                            || keyCode != android.view.KeyEvent.KEYCODE_DPAD_RIGHT) return false;
+                    first.requestFocus();
+                    return true;
+                }
+            });
+        }
+        center.addView(stripScroll);
         host.addView(center);
 
         big.setOnClickListener(new View.OnClickListener() {
@@ -352,21 +418,33 @@ class HomeLayouts {
         });
         big.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override public void onFocusChange(View v, boolean hasFocus) {
-                bigBg.setStroke(hasFocus ? a.dp(3) : 0, 0xFFFFFFFF);
+                ring(a, big, hasFocus, 22);
             }
         });
+    }
+
+    /** Background of the big Spotlight tile: brand gradient only for "App color", otherwise the chosen tile style. */
+    private static GradientDrawable spotlightBackground(MainActivity a, Look look, MainActivity.AppEntry app) {
+        int b = a.brandColor(app.packageName);
+        if (!"brand".equals(look.tiles) || look.lineLogo()) return look.tileBackground(a.dp(22), b);
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{b, a.shade(b, 0.66f)});
+        g.setCornerRadius(a.dp(22));
+        return g;
     }
 
     // ---------------------------------------------------------------- 6. Mozaika
 
     /** Mozaika: duży kafel po lewej, dwa mniejsze po prawej, pod nimi rząd czterech. */
     private static void mosaic(MainActivity a, LinearLayout host, Look look) {
-        ScrollView scroll = new ScrollView(a);
+        // A window for exactly two whole rows (the top one + one mosaic row), scrolling by row —
+        // the bottom row used to run off the screen and get cut.
+        final ScrollView scroll = new ScrollView(a);
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, a.dp(372)));
         scroll.setVerticalScrollBarEnabled(false);
         scroll.setClipChildren(false);
         scroll.setClipToPadding(false);
+        scroll.setPadding(0, a.dp(6), 0, a.dp(6));
 
         LinearLayout column = new LinearLayout(a);
         column.setOrientation(LinearLayout.VERTICAL);
@@ -377,7 +455,7 @@ class HomeLayouts {
         if (!a.orderedApps.isEmpty()) {
             final MainActivity.AppEntry big = a.orderedApps.get(0);
             FrameLayout bigTile = new FrameLayout(a);
-            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(a.dp(380), a.dp(232));
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(a.dp(330), a.dp(198));
             blp.setMargins(a.dp(6), a.dp(6), a.dp(8), a.dp(6));
             bigTile.setLayoutParams(blp);
             final GradientDrawable bgBig = look.tileBackground(a.dp(14), a.brandColor(big.packageName));
@@ -387,7 +465,8 @@ class HomeLayouts {
             fillTileContent(a, bigTile, big, look, 76, true);
             bigTile.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    bgBig.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, v, hasFocus, 14);
+                    if (hasFocus) keepRowInView(v);
                     a.focusTile(v, hasFocus, big);
                 }
             });
@@ -401,7 +480,7 @@ class HomeLayouts {
         for (int i = 1; i < Math.min(a.orderedApps.size(), 3); i++) {
             final MainActivity.AppEntry app = a.orderedApps.get(i);
             FrameLayout tile = new FrameLayout(a);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(a.dp(180), a.dp(112));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(a.dp(156), a.dp(95));
             lp.setMargins(0, a.dp(4), 0, a.dp(4));
             tile.setLayoutParams(lp);
             final GradientDrawable bg = look.tileBackground(a.dp(12), a.brandColor(app.packageName));
@@ -411,7 +490,8 @@ class HomeLayouts {
             fillTileContent(a, tile, app, look, 40, true);
             tile.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    bg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, v, hasFocus, 12);
+                    if (hasFocus) keepRowInView(v);
                     a.focusTile(v, hasFocus, app);
                 }
             });
@@ -422,8 +502,8 @@ class HomeLayouts {
         column.addView(top);
 
         // Prawdziwa mozaika: kafle roznych rozmiarow mieszaja sie w tych samych rzedach.
-        int[][] pattern = {{240, 144}, {180, 112}, {300, 180}, {160, 100}, {200, 120},
-                {180, 112}, {260, 156}, {140, 100}};
+        int[][] pattern = {{204, 122}, {156, 95}, {256, 152}, {136, 85}, {170, 102},
+                {156, 95}, {220, 132}, {120, 85}};
         int maxRow = 930;
         int idx = 3;
         int p = 0;
@@ -449,7 +529,8 @@ class HomeLayouts {
             fillTileContent(a, tile, app, look, Math.round(sz[1] * 0.34f), true);
             tile.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    bg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, v, hasFocus, 12);
+                    if (hasFocus) keepRowInView(v);
                     a.focusTile(v, hasFocus, app);
                 }
             });
@@ -461,10 +542,8 @@ class HomeLayouts {
         }
 
         scroll.addView(column);
-        host.addView(scroll);
-        scroll.post(new Runnable() {
-            @Override public void run() { scroll.scrollTo(0, 0); }
-        });
+        host.addView(window(a, scroll));
+        fitRows(a, scroll, column, 2, 6);
     }
 
 
@@ -523,7 +602,7 @@ class HomeLayouts {
                 ImageView iv = new ImageView(a);
                 int iconDp = look.logoSize(30);
                 if (look.lineLogo()) {
-                    android.graphics.Bitmap line = LineIcons.get(a, app.packageName, app.icon, a.dp(iconDp));
+                    android.graphics.Bitmap line = LineIcons.get(a, app.packageName, app.rawIcon, a.dp(iconDp));
                     if (line != null) iv.setImageBitmap(line); else iv.setImageDrawable(app.icon);
                 } else {
                     iv.clearColorFilter();
@@ -549,12 +628,11 @@ class HomeLayouts {
 
             row.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    rbg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, v, hasFocus, 12);
                     a.animateFocus(v, hasFocus);
                     if (hasFocus) {
-                        pbg.setColors(new int[]{a.brandColor(app.packageName),
-                                a.shade(a.brandColor(app.packageName), 0.6f)});
-                        if (look.lineLogo()) pbg.setColor(Color.TRANSPARENT);
+                        // preview in the chosen tile style (glass, frost...), not always in the brand color
+                        preview.setBackground(look.tileBackground(a.dp(16), a.brandColor(app.packageName)));
                         preview.removeAllViews();
                         fillTileContent(a, preview, app, look, 96, true);
                         a.focusTile(v, hasFocus, app);
@@ -571,6 +649,9 @@ class HomeLayouts {
         slp.rightMargin = a.dp(26);
         listScroll.setLayoutParams(slp);
         listScroll.setVerticalScrollBarEnabled(false);
+        // further entries fade out at the bottom instead of sticking out as a cut strip
+        listScroll.setVerticalFadingEdgeEnabled(true);
+        listScroll.setFadingEdgeLength(a.dp(40));
         listScroll.setClipChildren(false);
         listScroll.setClipToPadding(false);
         listScroll.setPadding(0, a.dp(6), 0, a.dp(6));
@@ -593,6 +674,9 @@ class HomeLayouts {
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         scroll.setHorizontalScrollBarEnabled(false);
+        // tiles beyond the screen fade at the edge instead of ending in a cut tile
+        scroll.setHorizontalFadingEdgeEnabled(true);
+        scroll.setFadingEdgeLength(a.dp(48));
         scroll.setClipChildren(false);
         scroll.setClipToPadding(false);
         scroll.setPadding(a.dp(8), a.dp(10), a.dp(8), a.dp(10));
@@ -616,7 +700,7 @@ class HomeLayouts {
             fillTileContent(a, tile, app, look, 62, true);
             tile.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    bg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, v, hasFocus, 12);
                     v.animate().scaleX(hasFocus ? 1.05f : 1f).scaleY(hasFocus ? 1.05f : 1f)
                             .setDuration(120).start();
                     a.focusTile(v, hasFocus, app);
@@ -632,14 +716,129 @@ class HomeLayouts {
 
     // ---------------------------------------------------------------- pomocnicze
 
+    /**
+     * Focus frame drawn ABOVE the tile content (as foreground) — a banner, poster or icon can't
+     * cover it, unlike a stroke on the tile background.
+     */
+    static void ring(MainActivity a, View v, boolean on, int radiusDp) {
+        if (!on) { v.setForeground(null); return; }
+        GradientDrawable r = new GradientDrawable();
+        r.setCornerRadius(a.dp(radiusDp));
+        r.setColor(Color.TRANSPARENT);
+        r.setStroke(a.dp(2), 0xFFFFFFFF);
+        v.setForeground(r);
+    }
+
+    /** App name in the middle of the tile — the "Name only" label mode. */
+    private static TextView nameInTile(MainActivity a, Look look, String text, int sizeSp) {
+        TextView t = new TextView(a);
+        t.setText(text);
+        t.setTextSize(sizeSp);
+        t.setTypeface(look.typefaceBold());
+        t.setTextColor(Color.WHITE);
+        t.setGravity(Gravity.CENTER);
+        // one word = one line (shrunk) so it never breaks mid-word; several words = 2 lines
+        t.setMaxLines(text.trim().contains(" ") ? 2 : 1);
+        t.setShadowLayer(6f, 0f, 1f, 0x99000000);
+        t.setPadding(a.dp(8), 0, a.dp(8), 0);
+        // long names shrink instead of breaking mid-word ("SkyShowtim/e")
+        t.setAutoSizeTextTypeUniformWithConfiguration(Math.min(9, sizeSp), sizeSp, 1,
+                android.util.TypedValue.COMPLEX_UNIT_SP);
+        t.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        return t;
+    }
+
+    /**
+     * Sets the scroll window height to exactly `rows` rows — measured after layout, so it works
+     * whether or not the tiles have captions.
+     */
+    private static void fitRows(final MainActivity a, final ScrollView scroll, final LinearLayout column,
+                                final int rows, final int padDp) {
+        scroll.post(new Runnable() {
+            @Override public void run() {
+                int h = a.dp(padDp) * 2;
+                int n = 0;
+                for (int i = 0; i < column.getChildCount() && n < rows; i++, n++) {
+                    View r = column.getChildAt(i);
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) r.getLayoutParams();
+                    h += r.getHeight() + lp.topMargin + lp.bottomMargin;
+                }
+                if (n > 0) {
+                    scroll.getLayoutParams().height = h;
+                    scroll.requestLayout();
+                }
+                scroll.scrollTo(0, 0);
+            }
+        });
+    }
+
+    /**
+     * Window frame around a scrolling area: clips everything that leaves the area (including the
+     * margin for the focus frame). Without it, rows scrolled up were drawn over the
+     * "Continue watching" row, because the home screen does not clip its children.
+     */
+    private static FrameLayout window(MainActivity a, ScrollView scroll) {
+        FrameLayout w = new FrameLayout(a);
+        w.setClipChildren(true);
+        w.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        scroll.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, scroll.getLayoutParams().height));
+        w.addView(scroll);
+        return w;
+    }
+
+    /**
+     * Scrolls the window by whole rows: the focused row is always fully visible with its margin,
+     * not just the tile (ScrollView by default stops halfway through the gap).
+     */
+    private static void keepRowInView(final View cell) {
+        // row = the tile's ancestor sitting directly in the scroll window's column
+        View r = cell;
+        while (r.getParent() instanceof View && ((View) r.getParent()).getParent() != null
+                && !(((View) r.getParent()).getParent() instanceof ScrollView)) {
+            r = (View) r.getParent();
+        }
+        if (!(r.getParent() instanceof View)) return;
+        final View row = r;
+        final View column = (View) row.getParent();
+        if (!(column.getParent() instanceof ScrollView)) return;
+        final ScrollView scroll = (ScrollView) column.getParent();
+        scroll.post(new Runnable() {
+            @Override public void run() {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) row.getLayoutParams();
+                int view = scroll.getHeight() - scroll.getPaddingTop() - scroll.getPaddingBottom();
+                int top = row.getTop() - lp.topMargin;
+                int bottom = row.getBottom() + lp.bottomMargin;
+                int y = scroll.getScrollY();
+                if (top < y) scroll.smoothScrollTo(0, top);
+                else if (bottom > y + view) scroll.smoothScrollTo(0, bottom - view);
+            }
+        });
+    }
+
     /** Wypełnia kafel: znak na środku i nazwa w lewym dolnym rogu. */
     private static void fillTileContent(MainActivity a, FrameLayout tile, MainActivity.AppEntry app,
                                         Look look, int logoDp, boolean withName) {
-        if (look.logoShown()) {
+        android.graphics.drawable.Drawable banner =
+                look.fullLogo() && look.logoShown() ? a.bannerOf(app) : null;
+        if (banner != null) {
+            // "Full-size icon": the whole tile is the app banner (as in Grid), clipped to the corners
+            RoundedImageView art = new RoundedImageView(a);
+            art.setImageDrawable(banner);
+            art.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            art.setCornerRadius(a.dp(12));
+            tile.addView(art, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        } else if (!look.logoShown()) {
+            // "Name only": name in the middle of the tile, sized to the tile
+            tile.addView(nameInTile(a, look, app.label, Math.max(14, Math.min(30, logoDp / 4))));
+        } else {
             ImageView iv = new ImageView(a);
             int size = look.fullLogo() ? Math.round(logoDp * 1.7f) : look.logoSize(logoDp);
             if (look.lineLogo()) {
-                android.graphics.Bitmap line = LineIcons.get(a, app.packageName, app.icon, a.dp(size));
+                android.graphics.Bitmap line = LineIcons.get(a, app.packageName, app.rawIcon, a.dp(size));
                 if (line != null) iv.setImageBitmap(line);
                 else iv.setImageDrawable(app.icon);
             } else {
@@ -652,7 +851,9 @@ class HomeLayouts {
             tile.addView(iv, ilp);
         }
 
-        if (withName && look.labelsShown()) {
+        // corner caption only with a regular icon: a banner has the name in the artwork, and with
+        // "Name only" the name is already in the middle
+        if (withName && look.labelsShown() && look.logoShown() && banner == null) {
             TextView name = new TextView(a);
             name.setText(app.label);
             name.setTextSize(14);
@@ -676,7 +877,7 @@ class HomeLayouts {
         ImageView iv = new ImageView(a);
         int shown = look.fullLogo() ? Math.round(sizeDp * 2.2f) : look.logoSize(sizeDp);
         if (look.lineLogo()) {
-            android.graphics.Bitmap line = LineIcons.get(a, app.packageName, app.icon, a.dp(shown));
+            android.graphics.Bitmap line = LineIcons.get(a, app.packageName, app.rawIcon, a.dp(shown));
             if (line != null) iv.setImageBitmap(line);
             else iv.setImageDrawable(app.icon);
         } else {
@@ -746,17 +947,22 @@ class HomeLayouts {
 
         TextView title = caption(a, look, a.getString(R.string.row_continue), 15, false);
         title.setTypeface(look.typeface());
-        title.setPadding(a.dp(24), a.dp(4), 0, a.dp(14));
+        title.setPadding(a.dp(24), a.dp(4), 0, a.dp(2));
         column.addView(title);
 
+        // Margin above the posters: the focused poster lifts and gets a frame — the scrolling
+        // row used to clip its top.
         HorizontalScrollView scroll = new HorizontalScrollView(a);
         scroll.setHorizontalScrollBarEnabled(false);
         scroll.setClipToPadding(false);
-        scroll.setPadding(a.dp(18), 0, a.dp(18), 0);
+        scroll.setPadding(a.dp(18), a.dp(4), a.dp(18), 0);
 
         LinearLayout row = new LinearLayout(a);
         row.setClipChildren(false);
         row.setClipToPadding(false);
+        // room inside the row: the scaled-up (focused) poster must fit within the row's bounds,
+        // because the scrolling strip clips the row to its own bounds
+        row.setPadding(0, a.dp(8), 0, a.dp(6));
         row.setOrientation(LinearLayout.HORIZONTAL);
         scroll.addView(row);
 
@@ -799,7 +1005,7 @@ class HomeLayouts {
             fillTileContent(a, tile, app, look, 56, false);
             tile.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override public void onFocusChange(View v, boolean hasFocus) {
-                    bg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
+                    ring(a, v, hasFocus, 12);
                     if (!hasFocus) return;
                     focus[0] = index;
                     // przestawienie po zakończeniu obsługi fokusu — bez szarpania przy szybkim klikaniu
@@ -842,6 +1048,14 @@ class HomeLayouts {
             stage.addView(tile);
         }
         host.addView(stage);
+        stage.post(new Runnable() {
+            @Override public void run() {
+                layoutRing(stage, tiles, 0, stepDeg, radiusDp, tileW, tileH);
+            }
+        });
+
+        // "Continue watching: Hide" — the arc alone, without the bottom tile
+        if ("off".equals(look.continueRow)) return;
 
         // Kafel "Kontynuuj oglądanie" dla wybranej aplikacji (pod łukiem, na środku).
         final FrameLayout last = new FrameLayout(a);
@@ -850,8 +1064,7 @@ class HomeLayouts {
         llp.gravity = Gravity.CENTER_HORIZONTAL;
         last.setLayoutParams(llp);
         last.setTranslationY(-a.dp(26));
-        final GradientDrawable lbg = look.tileBackground(a.dp(14), 0xFF141414);
-        last.setBackground(lbg);
+        last.setBackground(look.tileBackground(a.dp(14), 0xFF141414));
         last.setFocusable(true);
         last.setFocusableInTouchMode(true);
         host.addView(last);
@@ -906,7 +1119,6 @@ class HomeLayouts {
                 });
                 last.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override public void onFocusChange(View v, boolean hasFocus) {
-                        lbg.setStroke(hasFocus ? a.dp(2) : 0, 0xFFFFFFFF);
                         if (hasFocus) {
                             // ramka nad plakatem (plakat przykrywa tło kafla, więc obrys idzie na wierzch)
                             GradientDrawable ring = new GradientDrawable();
@@ -935,12 +1147,6 @@ class HomeLayouts {
             }
         };
         refreshLast[0].run();
-
-        stage.post(new Runnable() {
-            @Override public void run() {
-                layoutRing(stage, tiles, 0, stepDeg, radiusDp, tileW, tileH);
-            }
-        });
     }
 
     /** Łuk jak na rysunku: aktywny na górze, boki opadają łagodnie, kafle poziome i szerokie. */

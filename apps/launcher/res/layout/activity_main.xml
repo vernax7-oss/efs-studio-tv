@@ -289,11 +289,20 @@
             android:textColor="#FFFFFFFF"
             android:layout_marginBottom="16dp" />
 
-        <LinearLayout
-            android:id="@+id/panelRows"
+        <!-- rows in a scrolling column: every entry is reachable on screen -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="none"
+            android:fillViewport="false">
+
+            <LinearLayout
+                android:id="@+id/panelRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
 
         <TextView
             android:layout_width="match_parent"

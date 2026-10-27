@@ -59,8 +59,29 @@ class Look {
             {"mosaic", "brand", "both", "color", "modern", "show", "bg_07", "off"},
             {"sidebar", "glass", "both", "color", "modern", "show", "bg_02", "off"},
             {"dock", "brand", "both", "color", "modern", "show", "bg_05", "off"},
-            {"grid", "dark", "both", "white", "modern", "show", "bg_09", "off"},
+            {"grid", "dark", "both", "line", "modern", "show", "bg_09", "off"},
     };
+
+    /**
+     * Whether an option means anything in the given layout. Minimal is names only (no tiles or
+     * logos), and only Grid, Icons and Arc have the "Continue watching" row. The panel dims rows
+     * that don't apply to the current layout instead of allowing a change with no effect.
+     */
+    static boolean applies(String layout, String field) {
+        if ("minimal".equals(layout)) return "font".equals(field) || "clock".equals(field);
+        if ("continue".equals(field)) {
+            return "grid".equals(layout) || "icons".equals(layout) || "arc".equals(layout);
+        }
+        return true;
+    }
+
+    /**
+     * Grid and Icons with the "Continue watching" row and two rows of tiles fill the screen —
+     * a large clock with the date would run into the row title, so there the clock is always small.
+     */
+    boolean smallClockOnly() {
+        return ("grid".equals(layout) || "icons".equals(layout)) && !"off".equals(continueRow);
+    }
 
     /** Ustawia wszystkie pola z zestawu. */
     void applyPreset(int index) {
@@ -184,8 +205,10 @@ class Look {
             case "brand":
                 shape.setColor(brandColor);
                 break;
-            default: // glass — ledwo widoczna tafla; bez obrysu, bo fokus i tak go zdejmuje
-                shape.setColor(0x12FFFFFF);
+            default: // glass — a light pane with a thin, brighter edge (tells it apart from "No background"
+                     // and the matte "Frost"); focus is a separate frame on top, so the edge stays
+                shape.setColor(0x24FFFFFF);
+                shape.setStroke(Math.max(1, radiusPx / 14), 0x59FFFFFF);
                 break;
         }
         return shape;
