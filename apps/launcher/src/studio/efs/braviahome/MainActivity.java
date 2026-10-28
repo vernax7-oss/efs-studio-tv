@@ -315,13 +315,14 @@ public class MainActivity extends Activity {
             if (panel.handleKey(event.getKeyCode())) return true;
         }
 
+        trackHold(event);
         if (movingPkg != null && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (event.getRepeatCount() != 0) return true;
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_LEFT: moveApp(-1); return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT: moveApp(1); return true;
-                case KeyEvent.KEYCODE_DPAD_UP: moveApp(-moveColumns()); return true;
-                case KeyEvent.KEYCODE_DPAD_DOWN: moveApp(moveColumns()); return true;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                case KeyEvent.KEYCODE_DPAD_DOWN: return true;
                 case KeyEvent.KEYCODE_BACK:
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                 case KeyEvent.KEYCODE_ENTER: exitMove(); return true;
@@ -693,11 +694,43 @@ public class MainActivity extends Activity {
         return 0xff000000 | (r << 16) | (g << 8) | b;
     }
 
-    // ---------- moving apps (long OK on a tile, every layout) ----------
+    // ---------- moving apps: hold OK for 3 s on a tile, then left/right ----------
+
+    private static final long HOLD_MS = 3000;
 
     private String movingPkg;        // app being moved, null when not moving
     private String pendingFocusPkg;  // after a rebuild, focus returns to this app
-    private TextView moveHint;
+    private View arrowLeft, arrowRight;
+    private AppEntry holdApp;
+    private boolean holdFired;
+
+    private final Runnable holdDone = new Runnable() {
+        @Override public void run() {
+            View focused = getCurrentFocus();
+            if (holdApp == null || focused == null) return;
+            holdFired = true;
+            focused.setPressed(false);   // the release after the hold must not open the app
+            startMove(holdApp);
+        }
+    };
+
+    /** Holding OK on an app tile starts the timer; letting go earlier is a normal click. */
+    private void trackHold(KeyEvent event) {
+        int kc = event.getKeyCode();
+        if (kc != KeyEvent.KEYCODE_DPAD_CENTER && kc != KeyEvent.KEYCODE_ENTER) return;
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            handler.removeCallbacks(holdDone);
+            holdApp = null;
+            holdFired = false;
+        } else if (event.getRepeatCount() == 0) {
+            View focused = getCurrentFocus();
+            holdFired = false;
+            holdApp = movingPkg == null && focused != null && focused.getTag() instanceof AppEntry && !panelShown()
+                    ? (AppEntry) focused.getTag() : null;
+            handler.removeCallbacks(holdDone);
+            if (holdApp != null) handler.postDelayed(holdDone, HOLD_MS);
+        }
+    }
 
     boolean isMoving() { return movingPkg != null; }
 
@@ -709,26 +742,18 @@ public class MainActivity extends Activity {
     }
 
     void startMove(AppEntry app) {
-        if (panelShown()) return;
         movingPkg = app.packageName;
-        showMoveHint(app.label);
+        pendingFocusPkg = movingPkg;
+        placeArrows(getCurrentFocus());
     }
 
     void exitMove() {
         movingPkg = null;
-        if (moveHint != null) moveHint.setVisibility(View.GONE);
-    }
-
-    /** Up/down jump a whole row in the grid layouts and one place in the side list; elsewhere they do nothing. */
-    private int moveColumns() {
-        if ("grid".equals(look.layout)) return 5;
-        if ("icons".equals(look.layout)) return 6;
-        if ("sidebar".equals(look.layout)) return 1;
-        return 0;
+        if (arrowLeft != null) { arrowLeft.setVisibility(View.GONE); arrowRight.setVisibility(View.GONE); }
     }
 
     private void moveApp(int delta) {
-        if (delta == 0 || movingPkg == null) return;
+        if (movingPkg == null) return;
         int from = -1;
         for (int i = 0; i < orderedApps.size(); i++) {
             if (orderedApps.get(i).packageName.equals(movingPkg)) { from = i; break; }
@@ -738,29 +763,50 @@ public class MainActivity extends Activity {
         Collections.swap(orderedApps, from, to);
         saveOrder();
         pendingFocusPkg = movingPkg;
+        if (arrowLeft != null) { arrowLeft.setVisibility(View.GONE); arrowRight.setVisibility(View.GONE); }
         renderHome();
     }
 
-    private void showMoveHint(String label) {
-        if (moveHint == null) {
-            moveHint = new TextView(this);
-            moveHint.setTextSize(16);
-            moveHint.setTextColor(Color.WHITE);
-            moveHint.setGravity(Gravity.CENTER);
-            moveHint.setPadding(dp(24), dp(10), dp(24), dp(10));
-            GradientDrawable hintBg = new GradientDrawable();
-            hintBg.setColor(0xE6000000);
-            hintBg.setCornerRadius(dp(24));
-            hintBg.setStroke(dp(2), 0xFFFFFFFF);
-            moveHint.setBackground(hintBg);
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                    Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-            lp.topMargin = dp(24);
-            addContentView(moveHint, lp);
-        }
-        moveHint.setText(getString(R.string.move_hint, label));
-        moveHint.setVisibility(View.VISIBLE);
+    private View makeArrow(String glyph) {
+        TextView t = new TextView(this);
+        t.setText(glyph);
+        t.setTextSize(22);
+        t.setTextColor(Color.WHITE);
+        t.setGravity(Gravity.CENTER);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(0xCC000000);
+        bg.setStroke(dp(2), 0xFFFFFFFF);
+        t.setBackground(bg);
+        t.setVisibility(View.GONE);
+        addContentView(t, new FrameLayout.LayoutParams(dp(34), dp(34)));
+        return t;
+    }
+
+    /** Two arrows on the tile's left and right edge show that it can be moved. */
+    void placeArrows(final View tile) {
+        if (tile == null || movingPkg == null) return;
+        if (arrowLeft == null) { arrowLeft = makeArrow("‹"); arrowRight = makeArrow("›"); }
+        // the tile may still be animating into place (Arc), so measure after a moment
+        handler.postDelayed(new Runnable() {
+            @Override public void run() {
+                if (movingPkg == null) return;
+                int[] xy = new int[2];
+                tile.getLocationOnScreen(xy);
+                int w = Math.round(tile.getWidth() * tile.getScaleX());
+                int h = Math.round(tile.getHeight() * tile.getScaleY());
+                int size = dp(34);
+                int cy = xy[1] + h / 2 - size / 2;
+                arrowLeft.setTranslationX(xy[0] - size / 2f);
+                arrowLeft.setTranslationY(cy);
+                arrowRight.setTranslationX(xy[0] + w - size / 2f);
+                arrowRight.setTranslationY(cy);
+                arrowLeft.setVisibility(View.VISIBLE);
+                arrowRight.setVisibility(View.VISIBLE);
+                arrowLeft.bringToFront();
+                arrowRight.bringToFront();
+            }
+        }, 320);
     }
 
     private void startEdit(int index) {

@@ -52,7 +52,7 @@ class HomeLayouts {
             @Override public void run() {
                 if (a.panelShown()) return;
                 View moved = findTagged(host, a.takePendingFocus(), 0);
-                if (moved != null) moved.requestFocus(); else focusFirst(host);
+                if (moved != null) { moved.requestFocus(); a.placeArrows(moved); } else focusFirst(host);
             }
         });
     }
@@ -419,11 +419,8 @@ class HomeLayouts {
 
         big.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                if (a.isMoving()) a.exitMove(); else a.launch(current[0]);
+                a.launch(current[0]);
             }
-        });
-        big.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(View v) { a.startMove(current[0]); return true; }
         });
         big.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override public void onFocusChange(View v, boolean hasFocus) {
@@ -940,18 +937,15 @@ class HomeLayouts {
     private static View.OnClickListener click(final MainActivity a, final MainActivity.AppEntry app) {
         return new View.OnClickListener() {
             @Override public void onClick(View v) {
-                if (a.isMoving()) a.exitMove(); else a.launch(app);
+                a.launch(app);
             }
         };
     }
 
-    /** A tile for an app: OK opens it, a long OK picks it up to be moved (every layout). */
+    /** A tile for an app: OK opens it; the tag lets MainActivity pick it up with a long hold. */
     static void bindApp(final MainActivity a, View v, final MainActivity.AppEntry app) {
         v.setTag(app);
         v.setOnClickListener(click(a, app));
-        v.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(View view) { a.startMove(app); return true; }
-        });
     }
 
     /** Rząd „Kontynuuj oglądanie" (plakaty z Watch Next). */

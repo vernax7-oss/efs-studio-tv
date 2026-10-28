@@ -143,5 +143,4 @@
         <item>Nascosto</item>
     </string-array>
     <string name="not_for_layout">non usato in questo layout</string>
-    <string name="move_hint">Sposta %1$s — frecce per spostare, OK per finire</string>
 </resources>
