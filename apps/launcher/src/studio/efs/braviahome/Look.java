@@ -8,6 +8,7 @@
  */
 package studio.efs.braviahome;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -132,6 +133,32 @@ class Look {
         for (String a : allowed) if (a.equals(value)) return value;
         return fallback;
     }
+    /**
+     * Ustawia wygląd z poleceń testowych (--es layout arc --es bg bg_03 ...). Przyjmuje tylko znane
+     * wartości. Wywołuje to wyłącznie [LookCommandReceiver], dostępny tylko z ADB.
+     * @return true, gdy coś się zmieniło
+     */
+    boolean applyCommand(Intent intent) {
+        boolean changed = false;
+        String v;
+        if ((v = known(intent, "layout", LAYOUTS)) != null) { layout = v; changed = true; }
+        if ((v = known(intent, "bg", BACKGROUNDS)) != null) { background = v; changed = true; }
+        if ((v = known(intent, "tiles", TILES)) != null) { tiles = v; changed = true; }
+        if ((v = known(intent, "labels", LABELS)) != null) { labels = v; changed = true; }
+        if ((v = known(intent, "logo", LOGOS)) != null) { logo = v; changed = true; }
+        if ((v = known(intent, "font", FONTS)) != null) { font = v; changed = true; }
+        if ((v = known(intent, "clock", CLOCKS)) != null) { clock = v; changed = true; }
+        if ((v = known(intent, "continue", CONTINUE)) != null) { continueRow = v; changed = true; }
+        return changed;
+    }
+
+    private static String known(Intent intent, String key, String[] allowed) {
+        String value = intent.getStringExtra(key);
+        if (value == null) return null;
+        for (String candidate : allowed) if (candidate.equals(value)) return value;
+        return null;
+    }
+
 
     void save(SharedPreferences p) {
         p.edit()

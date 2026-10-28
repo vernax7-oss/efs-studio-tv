@@ -49,11 +49,12 @@ English for any other language). Names below are the English ones.
 Every option can be set without the remote — handy for screenshots and development:
 
 ```powershell
-adb shell am start -n studio.efs.braviahome/.MainActivity --es layout arc --es bg bg_03 --es tiles glass
+adb shell am broadcast -n studio.efs.braviahome/.LookCommandReceiver --es layout arc --es bg bg_03 --es tiles glass
 ```
 
 Keys: `layout`, `bg` (`poster`, `bg_01`…`bg_16`), `tiles`, `labels`, `logo`, `font`, `clock`, `continue`
-(values are the ids from `Look.java`).
+(values are the ids from `Look.java`). Only ADB can send this: the receiver requires the system
+`DUMP` permission, so no installed app can change the launcher's look.
 
 ## Design rules worth keeping
 

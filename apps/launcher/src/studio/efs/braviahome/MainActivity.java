@@ -62,7 +62,9 @@ public class MainActivity extends Activity {
     private static final int SCREEN_YOU = 0;
     private static final int SCREEN_SETTINGS = 2;
 
-    private static final String PREFS = "efs_home_v5";
+    static final String PREFS = "efs_home_v5";
+    /** Zmieniany przez [LookCommandReceiver] po poleceniu z ADB; ekran główny wtedy się przebudowuje. */
+    static final String PREF_LOOK_COMMAND = "look_command";
     private static final String PREF_ORDER = "order";
     private static final String PREF_STYLE = "style";
     private static final String STYLE_GLASS = "glass";
@@ -170,7 +172,7 @@ public class MainActivity extends Activity {
 
         sharp = STYLE_SHARP.equals(prefs.getString(PREF_STYLE, STYLE_GLASS));
         look = Look.load(prefs);
-        applyDebugLayout(getIntent());
+        prefs.registerOnSharedPreferenceChangeListener(lookCommandListener);
         applyStyle();
 
         loadApps();
@@ -266,7 +268,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Podgląd układu z ADB: am start ... --es layout dock (do zdjęć i testów, bez wpływu na UI). */
     /** Jednorazowa migracja: po tej wersji startujemy z czystymi ustawieniami wyglądu. */
     private void migrateLook() {
         if (prefs.getInt("schema", 0) < 2) {
@@ -276,57 +277,20 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void applyReset(Intent intent) {
-        if (intent != null && intent.getBooleanExtra("reset", false)) {
-            look = new Look();
-            look.save(prefs);
-        }
-    }
-
-    private static boolean debugLayoutApplied = false;
-
-    /** Podgląd/ustawianie wyglądu z ADB: --es layout grid --es bg bg_03 --es continue off itd. */
-    private void applyDebugLayout(Intent intent) {
-        if (intent == null) return;
-        boolean changed = false;
-        changed |= setIfPresent(intent, "layout", Look.LAYOUTS, 0);
-        changed |= setIfPresent(intent, "bg", Look.BACKGROUNDS, 1);
-        changed |= setIfPresent(intent, "tiles", Look.TILES, 2);
-        changed |= setIfPresent(intent, "labels", Look.LABELS, 3);
-        changed |= setIfPresent(intent, "logo", Look.LOGOS, 4);
-        changed |= setIfPresent(intent, "font", Look.FONTS, 5);
-        changed |= setIfPresent(intent, "clock", Look.CLOCKS, 6);
-        changed |= setIfPresent(intent, "continue", Look.CONTINUE, 7);
-        if (changed) {
-            debugLayoutApplied = true;   // znacznik tylko informacyjny
-            look.save(prefs);
-        }
-    }
-
-    private boolean setIfPresent(Intent intent, String key, String[] allowed, int field) {
-        String value = intent.getStringExtra(key);
-        if (value == null) return false;
-        boolean ok = false;
-        for (String candidate : allowed) if (candidate.equals(value)) ok = true;
-        if (!ok) return false;
-        switch (field) {
-            case 0: look.layout = value; break;
-            case 1: look.background = value; break;
-            case 2: look.tiles = value; break;
-            case 3: look.labels = value; break;
-            case 4: look.logo = value; break;
-            case 5: look.font = value; break;
-            case 6: look.clock = value; break;
-            default: look.continueRow = value; break;
-        }
-        return true;
-    }
+    /** Wygląd zmieniony poleceniem z ADB ([LookCommandReceiver]): wczytaj i przebuduj ekran. */
+    private final SharedPreferences.OnSharedPreferenceChangeListener lookCommandListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override public void onSharedPreferenceChanged(SharedPreferences p, String key) {
+                    if (!PREF_LOOK_COMMAND.equals(key)) return;
+                    look = Look.load(p);
+                    renderHome();
+                }
+            };
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        applyDebugLayout(intent);
         renderHome();
     }
 
@@ -334,6 +298,7 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(clockTick);
         handler.removeCallbacks(reloadApps);
         try { unregisterReceiver(packageReceiver); } catch (Exception ignored) { }
+        prefs.unregisterOnSharedPreferenceChangeListener(lookCommandListener);
         super.onDestroy();
     }
 
@@ -1623,6 +1588,16 @@ public class MainActivity extends Activity {
     void openContent(ContentEntry entry) {
         try {
             Intent intent = Intent.parseUri(entry.intentUri, Intent.URI_INTENT_SCHEME);
+            // Polecenie pochodzi od aplikacji, która dodała kafel: wolno mu otworzyć tylko ją samą
+            // i bez przekazywania uprawnień do plików (inaczej obca aplikacja mogłaby kazać
+            // launcherowi otworzyć coś zupełnie innego w jego imieniu).
+            String target = intent.getComponent() != null ? intent.getComponent().getPackageName() : intent.getPackage();
+            if (target != null && !target.equals(entry.packageName)) throw new SecurityException("obcy cel: " + target);
+            intent.setPackage(entry.packageName);
+            intent.setSelector(null);
+            intent.setClipData(null);
+            intent.removeFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (Exception e) {
