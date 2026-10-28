@@ -694,9 +694,9 @@ public class MainActivity extends Activity {
         return 0xff000000 | (r << 16) | (g << 8) | b;
     }
 
-    // ---------- moving apps: hold OK for 3 s on a tile, then left/right ----------
+    // ---------- moving apps: hold OK for 2 s on a tile, then left/right ----------
 
-    private static final long HOLD_MS = 3000;
+    private static final long HOLD_MS = 2000;
 
     private String movingPkg;        // app being moved, null when not moving
     private String pendingFocusPkg;  // after a rebuild, focus returns to this app

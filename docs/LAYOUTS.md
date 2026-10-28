@@ -79,6 +79,6 @@ Eleven Sports `#E23B00`, CANAL+ `#0D0D0D`, PLAY NOW `#6C2BD9`; others come from 
 
 ## Reordering apps
 
-In every layout, **hold OK for 3 seconds** on an app tile. Two arrows appear on it; move it with ← →
+In every layout, **hold OK for 2 seconds** on an app tile. Two arrows appear on it; move it with ← →
 to put the app earlier or later in the order. Press **OK** or **BACK** to put it down.
 The order is saved on the TV; apps you install later are added at the end.

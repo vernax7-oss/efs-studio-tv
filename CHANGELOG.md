@@ -5,7 +5,7 @@
 ## Unreleased
 
 **Launcher**
-- Reorder your apps in every layout: hold OK on a tile for 3 seconds, two arrows appear on it, then move it left or right with the remote; OK or BACK finishes. The order is saved.
+- Reorder your apps in every layout: hold OK on a tile for 2 seconds, two arrows appear on it, then move it left or right with the remote; OK or BACK finishes. The order is saved.
 
 ## 1.1
 
