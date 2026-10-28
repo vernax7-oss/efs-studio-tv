@@ -151,4 +151,5 @@
         <item>Hidden</item>
     </string-array>
     <string name="not_for_layout">not used in this layout</string>
+    <string name="move_hint">Moving %1$s — arrows to move, OK to finish</string>
 </resources>

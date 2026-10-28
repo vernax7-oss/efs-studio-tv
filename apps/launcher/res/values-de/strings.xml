@@ -143,4 +143,5 @@
         <item>Ausgeblendet</item>
     </string-array>
     <string name="not_for_layout">in diesem Layout nicht verwendet</string>
+    <string name="move_hint">%1$s verschieben — Pfeiltasten bewegen, OK beendet</string>
 </resources>

@@ -76,3 +76,9 @@ Keys: `layout`, `bg` (`poster`, `bg_01`…`bg_16`), `tiles`, `labels`, `logo`, `
 Netflix `#141414`, YouTube/SmartTube `#E50914`, Prime Video `#00A8E1`, Disney+ `#0E1B4D`,
 HBO Max `#3A0CA3`, Hulu `#1CE783`, Spotify `#121212`, SkyShowtime `#2B0B4F`,
 Eleven Sports `#E23B00`, CANAL+ `#0D0D0D`, PLAY NOW `#6C2BD9`; others come from a 12-color palette.
+
+## Reordering apps
+
+In every layout, **hold OK** on an app to pick it up. A hint appears at the top; move it with the arrows
+(← → one place; ↑ ↓ one row in Grid and Icons, one place in Side panel). Press **OK** or **BACK** to put it down.
+The order is saved on the TV; apps you install later are added at the end.

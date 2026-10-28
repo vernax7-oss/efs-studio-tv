@@ -143,4 +143,5 @@
         <item>Oculto</item>
     </string-array>
     <string name="not_for_layout">no se usa en este diseño</string>
+    <string name="move_hint">Moviendo %1$s — flechas para mover, OK para terminar</string>
 </resources>

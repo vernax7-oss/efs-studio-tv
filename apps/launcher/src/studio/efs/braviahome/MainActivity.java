@@ -232,6 +232,7 @@ public class MainActivity extends Activity {
 
     private final Runnable reloadApps = new Runnable() {
         @Override public void run() {
+            exitMove();
             apps.clear();
             bannerCache.clear();
             loadApps();
@@ -312,6 +313,20 @@ public class MainActivity extends Activity {
                 return true;
             }
             if (panel.handleKey(event.getKeyCode())) return true;
+        }
+
+        if (movingPkg != null && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (event.getRepeatCount() != 0) return true;
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_LEFT: moveApp(-1); return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT: moveApp(1); return true;
+                case KeyEvent.KEYCODE_DPAD_UP: moveApp(-moveColumns()); return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN: moveApp(moveColumns()); return true;
+                case KeyEvent.KEYCODE_BACK:
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                case KeyEvent.KEYCODE_ENTER: exitMove(); return true;
+                default: exitMove(); break;
+            }
         }
 
         // Przechwytujemy strzałki w trybie edycji PRZED nawigacją fokusu,
@@ -676,6 +691,76 @@ public class MainActivity extends Activity {
         int g = (int) (((color >> 8) & 0xff) * factor);
         int b = (int) ((color & 0xff) * factor);
         return 0xff000000 | (r << 16) | (g << 8) | b;
+    }
+
+    // ---------- moving apps (long OK on a tile, every layout) ----------
+
+    private String movingPkg;        // app being moved, null when not moving
+    private String pendingFocusPkg;  // after a rebuild, focus returns to this app
+    private TextView moveHint;
+
+    boolean isMoving() { return movingPkg != null; }
+
+    /** The app to refocus after a rebuild; forgets it once asked. */
+    String takePendingFocus() {
+        String p = pendingFocusPkg;
+        pendingFocusPkg = null;
+        return p;
+    }
+
+    void startMove(AppEntry app) {
+        if (panelShown()) return;
+        movingPkg = app.packageName;
+        showMoveHint(app.label);
+    }
+
+    void exitMove() {
+        movingPkg = null;
+        if (moveHint != null) moveHint.setVisibility(View.GONE);
+    }
+
+    /** Up/down jump a whole row in the grid layouts and one place in the side list; elsewhere they do nothing. */
+    private int moveColumns() {
+        if ("grid".equals(look.layout)) return 5;
+        if ("icons".equals(look.layout)) return 6;
+        if ("sidebar".equals(look.layout)) return 1;
+        return 0;
+    }
+
+    private void moveApp(int delta) {
+        if (delta == 0 || movingPkg == null) return;
+        int from = -1;
+        for (int i = 0; i < orderedApps.size(); i++) {
+            if (orderedApps.get(i).packageName.equals(movingPkg)) { from = i; break; }
+        }
+        int to = from + delta;
+        if (from < 0 || to < 0 || to >= orderedApps.size()) return;
+        Collections.swap(orderedApps, from, to);
+        saveOrder();
+        pendingFocusPkg = movingPkg;
+        renderHome();
+    }
+
+    private void showMoveHint(String label) {
+        if (moveHint == null) {
+            moveHint = new TextView(this);
+            moveHint.setTextSize(16);
+            moveHint.setTextColor(Color.WHITE);
+            moveHint.setGravity(Gravity.CENTER);
+            moveHint.setPadding(dp(24), dp(10), dp(24), dp(10));
+            GradientDrawable hintBg = new GradientDrawable();
+            hintBg.setColor(0xE6000000);
+            hintBg.setCornerRadius(dp(24));
+            hintBg.setStroke(dp(2), 0xFFFFFFFF);
+            moveHint.setBackground(hintBg);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+            lp.topMargin = dp(24);
+            addContentView(moveHint, lp);
+        }
+        moveHint.setText(getString(R.string.move_hint, label));
+        moveHint.setVisibility(View.VISIBLE);
     }
 
     private void startEdit(int index) {

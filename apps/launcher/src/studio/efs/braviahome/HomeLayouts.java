@@ -49,7 +49,11 @@ class HomeLayouts {
         // fokus dopiero po ulozeniu widokow, inaczej zostaje na pastylkach;
         // przy otwartym panelu wygladu fokus zostaje w panelu (podswietlenie paseczka)
         host.post(new Runnable() {
-            @Override public void run() { if (!a.panelShown()) focusFirst(host); }
+            @Override public void run() {
+                if (a.panelShown()) return;
+                View moved = findTagged(host, a.takePendingFocus(), 0);
+                if (moved != null) moved.requestFocus(); else focusFirst(host);
+            }
         });
     }
 
@@ -130,7 +134,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            cell.setOnClickListener(click(a, app));
+            bindApp(a, cell, app);
             row.addView(cell);
         }
         scroll.addView(column);
@@ -196,7 +200,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            cell.setOnClickListener(click(a, app));
+            bindApp(a, cell, app);
             row.addView(cell);
         }
         scroll.addView(column);
@@ -249,7 +253,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            name.setOnClickListener(click(a, app));
+            bindApp(a, name, app);
             col.addView(name);
         }
         scroll.addView(col);
@@ -310,7 +314,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            cell.setOnClickListener(click(a, app));
+            bindApp(a, cell, app);
             row.addView(cell);
         }
         scroll.addView(row);
@@ -385,7 +389,7 @@ class HomeLayouts {
                     }
                 }
             });
-            chip.setOnClickListener(click(a, app));
+            bindApp(a, chip, app);
             strip.addView(chip);
             chips.add(chip);
         }
@@ -414,7 +418,12 @@ class HomeLayouts {
         host.addView(center);
 
         big.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { a.launch(current[0]); }
+            @Override public void onClick(View v) {
+                if (a.isMoving()) a.exitMove(); else a.launch(current[0]);
+            }
+        });
+        big.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View v) { a.startMove(current[0]); return true; }
         });
         big.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override public void onFocusChange(View v, boolean hasFocus) {
@@ -470,7 +479,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, big);
                 }
             });
-            bigTile.setOnClickListener(click(a, big));
+            bindApp(a, bigTile, big);
             top.addView(bigTile);
         }
 
@@ -495,7 +504,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            tile.setOnClickListener(click(a, app));
+            bindApp(a, tile, app);
             rightCol.addView(tile);
         }
         top.addView(rightCol);
@@ -534,7 +543,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            tile.setOnClickListener(click(a, app));
+            bindApp(a, tile, app);
             row.addView(tile);
             rowW += sz[0] + 12;
             idx++;
@@ -639,7 +648,7 @@ class HomeLayouts {
                     }
                 }
             });
-            row.setOnClickListener(click(a, app));
+            bindApp(a, row, app);
             list.addView(row);
         }
 
@@ -706,7 +715,7 @@ class HomeLayouts {
                     a.focusTile(v, hasFocus, app);
                 }
             });
-            tile.setOnClickListener(click(a, app));
+            bindApp(a, tile, app);
             row.addView(tile);
         }
         scroll.addView(row);
@@ -930,8 +939,19 @@ class HomeLayouts {
 
     private static View.OnClickListener click(final MainActivity a, final MainActivity.AppEntry app) {
         return new View.OnClickListener() {
-            @Override public void onClick(View v) { a.launch(app); }
+            @Override public void onClick(View v) {
+                if (a.isMoving()) a.exitMove(); else a.launch(app);
+            }
         };
+    }
+
+    /** A tile for an app: OK opens it, a long OK picks it up to be moved (every layout). */
+    static void bindApp(final MainActivity a, View v, final MainActivity.AppEntry app) {
+        v.setTag(app);
+        v.setOnClickListener(click(a, app));
+        v.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View view) { a.startMove(app); return true; }
+        });
     }
 
     /** Rząd „Kontynuuj oglądanie" (plakaty z Watch Next). */
@@ -1043,7 +1063,7 @@ class HomeLayouts {
                     return false;
                 }
             });
-            tile.setOnClickListener(click(a, app));
+            bindApp(a, tile, app);
             tiles.add(tile);
             stage.addView(tile);
         }
@@ -1340,6 +1360,21 @@ class HomeLayouts {
     static void focusFirst(ViewGroup parent) {
         View found = findFocusable(parent, 0);
         if (found != null) found.requestFocus();
+    }
+
+    private static View findTagged(ViewGroup parent, String pkg, int depth) {
+        if (pkg == null || depth > 6) return null;
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            View child = parent.getChildAt(i);
+            Object tag = child.getTag();
+            if (tag instanceof MainActivity.AppEntry && child.isFocusable()
+                    && ((MainActivity.AppEntry) tag).packageName.equals(pkg)) return child;
+            if (child instanceof ViewGroup) {
+                View inner = findTagged((ViewGroup) child, pkg, depth + 1);
+                if (inner != null) return inner;
+            }
+        }
+        return null;
     }
 
     private static View findFocusable(ViewGroup parent, int depth) {

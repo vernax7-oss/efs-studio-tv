@@ -2,6 +2,11 @@
 
 © EFS Studio
 
+## Unreleased
+
+**Launcher**
+- Reorder your apps in every layout: hold OK on a tile, then move it with the arrows (up/down jump a row in Grid and Icons); OK or BACK finishes. The order is saved.
+
 ## 1.1
 
 **Launcher**

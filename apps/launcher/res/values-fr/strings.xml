@@ -143,4 +143,5 @@
         <item>Masquée</item>
     </string-array>
     <string name="not_for_layout">sans effet dans cette disposition</string>
+    <string name="move_hint">Déplacer %1$s — flèches pour déplacer, OK pour terminer</string>
 </resources>
