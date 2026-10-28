@@ -2,7 +2,7 @@
 
 © EFS Studio
 
-## Unreleased
+## 1.1
 
 **Launcher**
 - Grid, Icons and Mosaic show exactly two whole rows and scroll by row; nothing slides over
@@ -18,6 +18,10 @@
 - Focus frame is drawn above banners and posters; long lists fade at the edge instead of ending in a cut item.
 - Look panel scrolls, keeps its highlight after a change, and dims options that don't apply to the layout.
 - Lighter background overlays; "Black and white" preset uses outline logos.
+- The layout pill switches to the next layout on every OK, in a loop (only the layout changes).
+- Security: "Continue watching" tiles can open only the app that added them, without passing file
+  permissions; look commands over ADB moved to a receiver that requires the system DUMP permission,
+  so no installed app can change the launcher's look (see docs/LAYOUTS.md).
 
 ## 1.0 — first public release
 
