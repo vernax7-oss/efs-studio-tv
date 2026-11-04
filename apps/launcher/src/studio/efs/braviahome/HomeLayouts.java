@@ -726,7 +726,34 @@ class HomeLayouts {
      * Focus frame drawn ABOVE the tile content (as foreground) — a banner, poster or icon can't
      * cover it, unlike a stroke on the tile background.
      */
+    /** The logo pops out with a little overshoot and a playful wobble when its tile gets focus. */
+    private static void pop(View tile, boolean on) {
+        ImageView img = firstLogo(tile, 0);
+        if (img == null) return;
+        img.animate().cancel();
+        if (!on) {
+            img.animate().scaleX(1f).scaleY(1f).rotation(0f).setDuration(120).start();
+            return;
+        }
+        img.animate().scaleX(1.2f).scaleY(1.2f).setDuration(320)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(3f)).start();
+        android.animation.ObjectAnimator.ofFloat(img, "rotation", 0f, -7f, 5f, -2f, 0f).setDuration(420).start();
+    }
+
+    private static ImageView firstLogo(View v, int depth) {
+        if (v instanceof RoundedImageView) return null;   // full-tile artwork must keep filling the tile
+        if (v instanceof ImageView) return (ImageView) v;
+        if (!(v instanceof ViewGroup) || depth > 3) return null;
+        ViewGroup g = (ViewGroup) v;
+        for (int i = 0; i < g.getChildCount(); i++) {
+            ImageView found = firstLogo(g.getChildAt(i), depth + 1);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
     static void ring(MainActivity a, View v, boolean on, int radiusDp) {
+        pop(v, on);
         if (!on) { v.setForeground(null); return; }
         GradientDrawable r = new GradientDrawable();
         r.setCornerRadius(a.dp(radiusDp));

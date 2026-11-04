@@ -428,11 +428,12 @@ public class MainActivity extends Activity {
 
     private void openPackage(String pkg) {
         PackageManager pm = getPackageManager();
-        Intent intent = pm.getLeanbackLaunchIntentForPackage(pkg);
-        if (intent == null) intent = pm.getLaunchIntentForPackage(pkg);
-        if (intent == null) return;   // not installed on this TV
+        Intent found = pm.getLeanbackLaunchIntentForPackage(pkg);
+        if (found == null) found = pm.getLaunchIntentForPackage(pkg);
+        if (found == null) return;   // not installed on this TV
+        final Intent intent = found;
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        openWithEffect(new Runnable() { @Override public void run() { startActivity(intent); } });
     }
 
     // ---------- ambient life: slow background drift, entrance ----------
@@ -443,6 +444,8 @@ public class MainActivity extends Activity {
         super.onResume();
         // the whole screen rises in softly each time the launcher comes back
         homeHost.setAlpha(0f);
+        homeHost.setScaleX(1f);
+        homeHost.setScaleY(1f);
         homeHost.setTranslationY(dp(28));
         homeHost.animate().alpha(1f).translationY(0).setDuration(380)
                 .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
@@ -1840,115 +1843,33 @@ public class MainActivity extends Activity {
         }
     }
 
-    void launch(AppEntry app) {
+    /** The home screen swells and fades as the app opens, so launching feels like diving into the tile. */
+    private void openWithEffect(final Runnable open) {
+        homeHost.animate().scaleX(1.1f).scaleY(1.1f).alpha(0f).setDuration(170)
+                .withEndAction(new Runnable() {
+                    @Override public void run() {
+                        try { open.run(); } catch (Exception e) {
+                            android.util.Log.e("EFSHome", "launch failed", e);
+                        }
+                        // if the app never took over, bring the home screen back
+                        handler.postDelayed(new Runnable() {
+                            @Override public void run() {
+                                homeHost.setScaleX(1f); homeHost.setScaleY(1f); homeHost.setAlpha(1f);
+                            }
+                        }, 1500);
+                    }
+                }).start();
+    }
+
+    void launch(final AppEntry app) {
         if (app == null) return;
-        try {
-            Intent intent = new Intent();
-            intent.setComponent(app.component);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } catch (Exception e) {
-            android.util.Log.e("EFSHome", "nie mozna uruchomic " + app.packageName, e);
-        }
+        openWithEffect(new Runnable() {
+            @Override public void run() {
+                Intent intent = new Intent();
+                intent.setComponent(app.component);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
