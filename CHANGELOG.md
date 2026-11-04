@@ -2,7 +2,7 @@
 
 © EFS Studio
 
-## Unreleased
+## 1.1.1
 
 **Launcher**
 - Reorder your apps in every layout: hold OK on a tile for 2 seconds, two arrows appear on it, then move it left or right with the remote; OK or BACK finishes. The order is saved.
