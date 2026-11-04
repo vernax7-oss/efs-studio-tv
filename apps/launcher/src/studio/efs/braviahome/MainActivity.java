@@ -435,10 +435,9 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    // ---------- ambient life: slow background drift, colour wash, entrance ----------
+    // ---------- ambient life: slow background drift, entrance ----------
 
     private android.animation.ValueAnimator drift;
-    private int washColor;
 
     @Override protected void onResume() {
         super.onResume();
@@ -472,19 +471,6 @@ public class MainActivity extends Activity {
         super.onPause();
     }
 
-    /** The screen takes a faint tint of the focused app's colour — Netflix reddish, Prime blue. */
-    void washTo(int brand) {
-        int to = 0x55000000 | (brand & 0xFFFFFF);
-        android.animation.ValueAnimator va = android.animation.ValueAnimator.ofArgb(washColor, to);
-        va.setDuration(450);
-        va.addUpdateListener(new android.animation.ValueAnimator.AnimatorUpdateListener() {
-            @Override public void onAnimationUpdate(android.animation.ValueAnimator a) {
-                washColor = (Integer) a.getAnimatedValue();
-                overlayDim.setBackgroundColor(washColor);
-            }
-        });
-        va.start();
-    }
 
     /** Unoszenie kafla: przesunięcie w górę + cień (bez skalowania, żeby nie ucinać sąsiadów). */
     void animateFocus(View v, boolean hasFocus) {
@@ -984,7 +970,7 @@ public class MainActivity extends Activity {
         tabSettings.setTextSize(tabSize);
 
         backdrop.setVisibility(View.VISIBLE);
-        overlayDim.setVisibility(View.VISIBLE);   // ambient wash, tinted by the focused app (see washTo)
+        overlayDim.setVisibility(View.GONE);
         overlayLeft.setVisibility(View.VISIBLE);
         overlayBottom.setVisibility(View.VISIBLE);
 
@@ -1158,7 +1144,6 @@ public class MainActivity extends Activity {
         if (hasFocus && app != null) {
             // Rząd "Kontynuuj oglądanie" pokazuje pozycje aplikacji, na którą najechaliśmy.
             filterContinue(app.packageName);
-            washTo(brandColor(app.packageName));
             if ("grid".equals(look.layout)) updateBackdrop(app);
         }
     }
