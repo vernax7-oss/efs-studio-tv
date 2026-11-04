@@ -377,6 +377,54 @@ public class MainActivity extends Activity {
         return Math.round(getResources().getDisplayMetrics().density * v);
     }
 
+    // ---------- ambient life: slow background drift, colour wash, entrance ----------
+
+    private android.animation.ValueAnimator drift;
+    private int washColor;
+
+    @Override protected void onResume() {
+        super.onResume();
+        // the whole screen rises in softly each time the launcher comes back
+        homeHost.setAlpha(0f);
+        homeHost.setTranslationY(dp(28));
+        homeHost.animate().alpha(1f).translationY(0).setDuration(380)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+        // the photo drifts and breathes very slowly, so the screen is never frozen
+        drift = android.animation.ValueAnimator.ofFloat(0f, 1f);
+        drift.setDuration(40000);
+        drift.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+        drift.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+        drift.addUpdateListener(new android.animation.ValueAnimator.AnimatorUpdateListener() {
+            @Override public void onAnimationUpdate(android.animation.ValueAnimator a) {
+                float t = (Float) a.getAnimatedValue();
+                backdrop.setScaleX(1.04f + 0.06f * t);
+                backdrop.setScaleY(1.04f + 0.06f * t);
+                backdrop.setTranslationX(dp(-18) + dp(36) * t);
+            }
+        });
+        drift.start();
+    }
+
+    @Override protected void onPause() {
+        if (drift != null) drift.cancel();   // no animation while another app is in front
+        exitMove();
+        super.onPause();
+    }
+
+    /** The screen takes a faint tint of the focused app's colour — Netflix reddish, Prime blue. */
+    void washTo(int brand) {
+        int to = 0x55000000 | (brand & 0xFFFFFF);
+        android.animation.ValueAnimator va = android.animation.ValueAnimator.ofArgb(washColor, to);
+        va.setDuration(450);
+        va.addUpdateListener(new android.animation.ValueAnimator.AnimatorUpdateListener() {
+            @Override public void onAnimationUpdate(android.animation.ValueAnimator a) {
+                washColor = (Integer) a.getAnimatedValue();
+                overlayDim.setBackgroundColor(washColor);
+            }
+        });
+        va.start();
+    }
+
     /** Unoszenie kafla: przesunięcie w górę + cień (bez skalowania, żeby nie ucinać sąsiadów). */
     void animateFocus(View v, boolean hasFocus) {
         v.animate()
@@ -875,7 +923,7 @@ public class MainActivity extends Activity {
         tabSettings.setTextSize(tabSize);
 
         backdrop.setVisibility(View.VISIBLE);
-        overlayDim.setVisibility(View.GONE);
+        overlayDim.setVisibility(View.VISIBLE);   // ambient wash, tinted by the focused app (see washTo)
         overlayLeft.setVisibility(View.VISIBLE);
         overlayBottom.setVisibility(View.VISIBLE);
 
@@ -1049,6 +1097,7 @@ public class MainActivity extends Activity {
         if (hasFocus && app != null) {
             // Rząd "Kontynuuj oglądanie" pokazuje pozycje aplikacji, na którą najechaliśmy.
             filterContinue(app.packageName);
+            washTo(brandColor(app.packageName));
             if ("grid".equals(look.layout)) updateBackdrop(app);
         }
     }

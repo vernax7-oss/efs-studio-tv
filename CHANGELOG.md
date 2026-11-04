@@ -6,6 +6,7 @@
 
 **Launcher**
 - Reorder your apps in every layout: hold OK on a tile for 2 seconds, two arrows appear on it, then move it left or right with the remote; OK or BACK finishes. The order is saved.
+- The home screen feels alive: it rises in softly each time you return, the background photo drifts very slowly, and the whole screen takes a faint tint of the focused app's colour.
 
 ## 1.1
 
