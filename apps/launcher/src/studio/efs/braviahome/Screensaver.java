@@ -32,6 +32,7 @@ class Screensaver extends FrameLayout {
     private int next;
     private int top;
     private boolean running;
+    private Tween motion;
 
     Screensaver(Context c) {
         super(c);
@@ -69,7 +70,7 @@ class Screensaver extends FrameLayout {
     void stop() {
         running = false;
         handler.removeCallbacksAndMessages(null);
-        for (ImageView l : layers) l.animate().cancel();
+        if (motion != null) motion.cancel();
         setVisibility(View.GONE);
     }
 
@@ -82,11 +83,18 @@ class Screensaver extends FrameLayout {
             in.setImageBitmap(bmp);
             in.setScaleX(1f);
             in.setScaleY(1f);
-            in.setAlpha(0f);
-            in.animate().alpha(1f).setDuration(FADE_MS).start();
-            // drift for the whole time the photo is visible
-            in.animate().scaleX(1.12f).scaleY(1.12f).setDuration(SLIDE_MS + FADE_MS).start();
-            out.animate().alpha(0f).setDuration(FADE_MS).start();
+            if (motion != null) motion.cancel();
+            final float fadeShare = FADE_MS / (float) (SLIDE_MS + FADE_MS);
+            // one frame-driven motion for the whole photo: fade in, fade the old one out, drift
+            motion = new Tween(this, SLIDE_MS + FADE_MS, false, new Tween.Step() {
+                @Override public void at(float t) {
+                    float f = Math.min(1f, t / fadeShare);
+                    in.setAlpha(f);
+                    out.setAlpha(1f - f);
+                    in.setScaleX(1f + 0.12f * t);
+                    in.setScaleY(1f + 0.12f * t);
+                }
+            }, null).start();
             placeClock();
         }
         handler.postDelayed(new Runnable() { @Override public void run() { slide(); } }, SLIDE_MS);

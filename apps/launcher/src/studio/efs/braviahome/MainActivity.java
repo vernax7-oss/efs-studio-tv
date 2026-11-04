@@ -438,31 +438,33 @@ public class MainActivity extends Activity {
 
     // ---------- ambient life: slow background drift, entrance ----------
 
-    private android.animation.ValueAnimator drift;
+    private Tween drift;
+
+    private Tween entrance;
 
     @Override protected void onResume() {
         super.onResume();
         // the whole screen rises in softly each time the launcher comes back
+        if (entrance != null) entrance.cancel();
         homeHost.setAlpha(0f);
         homeHost.setScaleX(1f);
         homeHost.setScaleY(1f);
-        homeHost.setTranslationY(dp(28));
-        homeHost.animate().alpha(1f).translationY(0).setDuration(380)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+        entrance = new Tween(homeHost, 380, false, new Tween.Step() {
+            @Override public void at(float t) {
+                float e = Tween.easeOut(t);
+                homeHost.setAlpha(e);
+                homeHost.setTranslationY(dp(28) * (1f - e));
+            }
+        }, null).start();
         // the photo drifts and breathes very slowly, so the screen is never frozen
-        drift = android.animation.ValueAnimator.ofFloat(0f, 1f);
-        drift.setDuration(40000);
-        drift.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-        drift.setRepeatMode(android.animation.ValueAnimator.REVERSE);
-        drift.addUpdateListener(new android.animation.ValueAnimator.AnimatorUpdateListener() {
-            @Override public void onAnimationUpdate(android.animation.ValueAnimator a) {
-                float t = (Float) a.getAnimatedValue();
+        if (drift != null) drift.cancel();
+        drift = new Tween(backdrop, 40000, true, new Tween.Step() {
+            @Override public void at(float t) {
                 backdrop.setScaleX(1.04f + 0.06f * t);
                 backdrop.setScaleY(1.04f + 0.06f * t);
                 backdrop.setTranslationX(dp(-18) + dp(36) * t);
             }
-        });
-        drift.start();
+        }, null).start();
         restartIdleTimer();
     }
 
@@ -1845,20 +1847,26 @@ public class MainActivity extends Activity {
 
     /** The home screen swells and fades as the app opens, so launching feels like diving into the tile. */
     private void openWithEffect(final Runnable open) {
-        homeHost.animate().scaleX(1.1f).scaleY(1.1f).alpha(0f).setDuration(170)
-                .withEndAction(new Runnable() {
+        new Tween(homeHost, 220, false, new Tween.Step() {
+            @Override public void at(float t) {
+                float e = Tween.easeOut(t);
+                homeHost.setScaleX(1f + 0.12f * e);
+                homeHost.setScaleY(1f + 0.12f * e);
+                homeHost.setAlpha(1f - e);
+            }
+        }, new Runnable() {
+            @Override public void run() {
+                try { open.run(); } catch (Exception e) {
+                    android.util.Log.e("EFSHome", "launch failed", e);
+                }
+                // if the app never took over, bring the home screen back
+                handler.postDelayed(new Runnable() {
                     @Override public void run() {
-                        try { open.run(); } catch (Exception e) {
-                            android.util.Log.e("EFSHome", "launch failed", e);
-                        }
-                        // if the app never took over, bring the home screen back
-                        handler.postDelayed(new Runnable() {
-                            @Override public void run() {
-                                homeHost.setScaleX(1f); homeHost.setScaleY(1f); homeHost.setAlpha(1f);
-                            }
-                        }, 1500);
+                        homeHost.setScaleX(1f); homeHost.setScaleY(1f); homeHost.setAlpha(1f);
                     }
-                }).start();
+                }, 1500);
+            }
+        }).start();
     }
 
     void launch(final AppEntry app) {

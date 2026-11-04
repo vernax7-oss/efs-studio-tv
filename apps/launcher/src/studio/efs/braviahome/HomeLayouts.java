@@ -726,18 +726,33 @@ class HomeLayouts {
      * Focus frame drawn ABOVE the tile content (as foreground) — a banner, poster or icon can't
      * cover it, unlike a stroke on the tile background.
      */
-    /** The logo pops out with a little overshoot and a playful wobble when its tile gets focus. */
+    private static final java.util.WeakHashMap<View, Tween> POPS = new java.util.WeakHashMap<>();
+
+    /** The logo pops out with a springy overshoot and a wobble when its tile gets focus. */
     private static void pop(View tile, boolean on) {
-        ImageView img = firstLogo(tile, 0);
+        final ImageView img = firstLogo(tile, 0);
         if (img == null) return;
-        img.animate().cancel();
-        if (!on) {
-            img.animate().scaleX(1f).scaleY(1f).rotation(0f).setDuration(120).start();
-            return;
-        }
-        img.animate().scaleX(1.2f).scaleY(1.2f).setDuration(320)
-                .setInterpolator(new android.view.animation.OvershootInterpolator(3f)).start();
-        android.animation.ObjectAnimator.ofFloat(img, "rotation", 0f, -7f, 5f, -2f, 0f).setDuration(420).start();
+        Tween old = POPS.get(img);
+        if (old != null) old.cancel();
+        final float fromS = img.getScaleX(), fromR = img.getRotation();
+        Tween t = on
+                ? new Tween(img, 520, false, new Tween.Step() {
+                    @Override public void at(float t) {
+                        float s = fromS + (1.22f - fromS) * Tween.easeOutBack(t);
+                        img.setScaleX(s);
+                        img.setScaleY(s);
+                        img.setRotation(fromR * (1f - t) + 9f * (float) Math.sin(t * 9.4f) * (1f - t));
+                    }
+                }, null)
+                : new Tween(img, 160, false, new Tween.Step() {
+                    @Override public void at(float t) {
+                        float e = Tween.easeOut(t);
+                        img.setScaleX(fromS + (1f - fromS) * e);
+                        img.setScaleY(fromS + (1f - fromS) * e);
+                        img.setRotation(fromR * (1f - e));
+                    }
+                }, null);
+        POPS.put(img, t.start());
     }
 
     private static ImageView firstLogo(View v, int depth) {
@@ -755,11 +770,12 @@ class HomeLayouts {
     static void ring(MainActivity a, View v, boolean on, int radiusDp) {
         pop(v, on);
         if (!on) { v.setForeground(null); return; }
-        GradientDrawable r = new GradientDrawable();
-        r.setCornerRadius(a.dp(radiusDp));
-        r.setColor(Color.TRANSPARENT);
-        r.setStroke(a.dp(2), 0xFFFFFFFF);
-        v.setForeground(r);
+        final ShineDrawable shine = new ShineDrawable(a.dp(radiusDp), a.dp(2));
+        shine.setProgress(0f);
+        v.setForeground(shine);
+        new Tween(v, 700, false, new Tween.Step() {
+            @Override public void at(float t) { shine.setProgress(t); }
+        }, null).start();
     }
 
     /** App name in the middle of the tile — the "Name only" label mode. */
