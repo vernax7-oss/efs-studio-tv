@@ -98,7 +98,8 @@ class Look {
         continueRow = p[7];
     }
     static final String[] BACKGROUNDS = {"poster", "bg_01", "bg_02", "bg_03", "bg_04", "bg_05",
-            "bg_06", "bg_07", "bg_08", "bg_09", "bg_10", "bg_11", "bg_12", "bg_13", "bg_14", "bg_15", "bg_16"};
+            "bg_06", "bg_07", "bg_08", "bg_09", "bg_10", "bg_11", "bg_12", "bg_13", "bg_14", "bg_15", "bg_16",
+            "bg_17", "bg_18", "bg_19", "bg_20", "bg_21", "bg_22"};
     static String[] BACKGROUND_NAMES;
 
     static final String[] CONTINUE = {"on", "off"};

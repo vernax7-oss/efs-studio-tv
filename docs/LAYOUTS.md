@@ -34,7 +34,7 @@ English for any other language). Names below are the English ones.
 |---|---|
 | Preset | ready-made combinations of layout, tiles, labels, font, clock and background |
 | Layout | the 9 layouts above |
-| Background | blurred poster of the selected app + 16 photos, with a thumbnail |
+| Background | blurred poster of the selected app + 22 photos, with a thumbnail |
 | Tiles | Glass · Frost · Dark · Clear · App color |
 | Labels | Logo and name · Logo only · Name only |
 | Logo style | App color · Outline (white line drawing) · Full tile (app banner) |
@@ -82,3 +82,10 @@ Eleven Sports `#E23B00`, CANAL+ `#0D0D0D`, PLAY NOW `#6C2BD9`; others come from 
 In every layout, **hold OK for 2 seconds** on an app tile. Two arrows appear on it; move it with ← →
 to put the app earlier or later in the order. Press **OK** or **BACK** to put it down.
 The order is saved on the TV; apps you install later are added at the end.
+
+## Remote buttons and screensaver
+
+- **Red** opens SmartTube, **Green** CANAL+, **Blue** the Pogoda (weather) app, **Yellow** switches to the next layout.
+  The apps are fixed in `MainActivity.java` (`RED_APP`, `GREEN_APP`, `BLUE_APP`); a button does nothing if the app isn't installed.
+- After 3 minutes without a button press the screensaver starts: the photos fade into each other and drift slowly,
+  with a small clock that hops between corners. Any button wakes the launcher (that press does nothing else).

@@ -140,6 +140,12 @@
         <item>Daisy meadow</item>
         <item>Tulip fields</item>
         <item>Mountain lake</item>
+        <item>Starry lake</item>
+        <item>Aurora</item>
+        <item>Pines at dawn</item>
+        <item>Sea at dusk</item>
+        <item>Red canyon</item>
+        <item>Golden silk</item>
     </string-array>
     <string-array name="continue_names">
         <item>Show</item>

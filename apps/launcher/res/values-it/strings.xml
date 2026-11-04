@@ -132,6 +132,12 @@
         <item>Prato di margherite</item>
         <item>Campi di tulipani</item>
         <item>Lago di montagna</item>
+        <item>Lago stellato</item>
+        <item>Aurora boreale</item>
+        <item>Pini all\'alba</item>
+        <item>Mare al tramonto</item>
+        <item>Canyon rosso</item>
+        <item>Seta dorata</item>
     </string-array>
     <string-array name="continue_names">
         <item>Mostra</item>

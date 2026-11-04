@@ -132,6 +132,12 @@
         <item>Łąka stokrotek</item>
         <item>Tulipanowe pola</item>
         <item>Górskie jezioro</item>
+        <item>Gwiaździste jezioro</item>
+        <item>Zorza polarna</item>
+        <item>Sosny o świcie</item>
+        <item>Morze o zmierzchu</item>
+        <item>Czerwony kanion</item>
+        <item>Złoty jedwab</item>
     </string-array>
     <string-array name="continue_names">
         <item>Pokazuj</item>

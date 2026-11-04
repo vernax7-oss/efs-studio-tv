@@ -91,14 +91,14 @@ and withdraw Sony's data collection consents in its privacy policy.
 ## The launcher at a glance
 
 - **9 layouts:** Grid, Icons, Minimal, Logos, Spotlight, Mosaic, Side panel, Dock, Arc (a carousel along an arc with smooth animation).
-- **Look:** 17 backgrounds (16 photos + a blurred poster), tiles Glass/Frost/Dark/Clear/App color,
+- **Look:** 23 backgrounds (22 photos + a blurred poster), tiles Glass/Frost/Dark/Clear/App color,
   logos in color, as an outline or filling the whole tile, 4 fonts, clock large/small/hidden, ready-made presets.
 - **Continue watching** from the system's Watch Next data, for apps that provide it.
 - **Remote:** the MENU button (or the "Look" pill at the top) opens the panel. ↑↓ select, ←→ change, OK list, BACK exit.
 - **Languages:** English, Polish, German, French, Spanish, Italian. Android picks the TV's system language
   automatically (Settings → Device Preferences → Language) — there is nothing to set. Any other language shows English.
   Adding a language is one file — see [CONTRIBUTING.md](CONTRIBUTING.md#add-a-language).
-- No Google Play Services, no AndroidX, no Gradle — the APK is about 7 MB, mostly backgrounds.
+- No Google Play Services, no AndroidX, no Gradle — the APK is about 11 MB, mostly backgrounds.
 
 Layouts and options in detail: [docs/LAYOUTS.md](docs/LAYOUTS.md).
 

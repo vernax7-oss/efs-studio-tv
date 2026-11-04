@@ -132,6 +132,12 @@
         <item>Prado de margaritas</item>
         <item>Campos de tulipanes</item>
         <item>Lago de montaña</item>
+        <item>Lago estrellado</item>
+        <item>Aurora boreal</item>
+        <item>Pinos al amanecer</item>
+        <item>Mar al anochecer</item>
+        <item>Cañón rojo</item>
+        <item>Seda dorada</item>
     </string-array>
     <string-array name="continue_names">
         <item>Mostrar</item>

@@ -132,6 +132,12 @@
         <item>Gänseblümchenwiese</item>
         <item>Tulpenfelder</item>
         <item>Bergsee</item>
+        <item>Sternensee</item>
+        <item>Polarlicht</item>
+        <item>Kiefern im Morgenlicht</item>
+        <item>Meer in der Dämmerung</item>
+        <item>Roter Canyon</item>
+        <item>Goldene Seide</item>
     </string-array>
     <string-array name="continue_names">
         <item>Anzeigen</item>

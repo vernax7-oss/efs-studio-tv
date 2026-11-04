@@ -305,6 +305,7 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (wakeSaver(event)) return true;
         // Panel i lista wyboru obsługują pilota same, niezależnie od tego, gdzie wypadł fokus.
         if (panel != null && (panel.isOpen() || panel.isPickerOpen())
                 && event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
@@ -315,6 +316,7 @@ public class MainActivity extends Activity {
             if (panel.handleKey(event.getKeyCode())) return true;
         }
 
+        if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0 && movingPkg == null && !panelShown() && colourKey(event.getKeyCode())) return true;
         trackHold(event);
         if (movingPkg != null && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (event.getRepeatCount() != 0) return true;
@@ -377,6 +379,62 @@ public class MainActivity extends Activity {
         return Math.round(getResources().getDisplayMetrics().density * v);
     }
 
+    // ---------- screensaver and colour keys ----------
+
+    private static final long IDLE_MS = 3 * 60 * 1000;
+    private Screensaver saver;
+    private final Runnable startSaver = new Runnable() {
+        @Override public void run() {
+            if (saver == null) {
+                saver = new Screensaver(MainActivity.this);
+                addContentView(saver, new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+            saver.start();
+        }
+    };
+
+    private void restartIdleTimer() {
+        handler.removeCallbacks(startSaver);
+        handler.postDelayed(startSaver, IDLE_MS);
+    }
+
+    /** True when the key only woke the screensaver and must not reach the launcher. */
+    private boolean wakeSaver(KeyEvent event) {
+        boolean wasShowing = saver != null && saver.showing();
+        if (wasShowing) saver.stop();
+        if (event.getAction() == KeyEvent.ACTION_DOWN || wasShowing) restartIdleTimer();
+        return wasShowing;
+    }
+
+    // keys of the remote's red / green / yellow / blue buttons
+    private static final String RED_APP = "org.smarttube.beta";
+    private static final String GREEN_APP = "com.canal.android.canal";
+    private static final String BLUE_APP = "com.efsstudio.pogoda.tv";
+
+    private boolean colourKey(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_PROG_RED: openPackage(RED_APP); return true;
+            case KeyEvent.KEYCODE_PROG_GREEN: openPackage(GREEN_APP); return true;
+            case KeyEvent.KEYCODE_PROG_BLUE: openPackage(BLUE_APP); return true;
+            case KeyEvent.KEYCODE_PROG_YELLOW:
+                look.layout = Look.nextOf(Look.LAYOUTS, look.layout);
+                look.save(prefs);
+                renderHome();
+                return true;
+            default: return false;
+        }
+    }
+
+    private void openPackage(String pkg) {
+        PackageManager pm = getPackageManager();
+        Intent intent = pm.getLeanbackLaunchIntentForPackage(pkg);
+        if (intent == null) intent = pm.getLaunchIntentForPackage(pkg);
+        if (intent == null) return;   // not installed on this TV
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     // ---------- ambient life: slow background drift, colour wash, entrance ----------
 
     private android.animation.ValueAnimator drift;
@@ -403,10 +461,13 @@ public class MainActivity extends Activity {
             }
         });
         drift.start();
+        restartIdleTimer();
     }
 
     @Override protected void onPause() {
         if (drift != null) drift.cancel();   // no animation while another app is in front
+        handler.removeCallbacks(startSaver);
+        if (saver != null) saver.stop();
         exitMove();
         super.onPause();
     }

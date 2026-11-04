@@ -132,6 +132,12 @@
         <item>Prairie de pâquerettes</item>
         <item>Champs de tulipes</item>
         <item>Lac de montagne</item>
+        <item>Lac étoilé</item>
+        <item>Aurore boréale</item>
+        <item>Pins à l\'aube</item>
+        <item>Mer au crépuscule</item>
+        <item>Canyon rouge</item>
+        <item>Soie dorée</item>
     </string-array>
     <string-array name="continue_names">
         <item>Afficher</item>
