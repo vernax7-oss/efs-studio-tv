@@ -417,7 +417,7 @@ public class MainActivity extends Activity {
     }
 
     // keys of the remote's red / green / yellow / blue buttons
-    private static final String RED_APP = "org.smarttube.beta";
+    private static final String RED_APP = "studio.efs.tube";
     private static final String GREEN_APP = "com.canal.android.canal";
     private static final String BLUE_APP = "com.efsstudio.pogoda.tv";
 
@@ -780,7 +780,8 @@ public class MainActivity extends Activity {
         switch (pkg) {
             case "com.netflix.ninja": return 0xFF141414;
             case "com.google.android.youtube.tv":
-            case "org.smarttube.beta": return 0xFFE50914;
+            case "org.smarttube.beta":
+            case "studio.efs.tube": return 0xFFE50914;
             case "com.amazon.amazonvideo.livingroom": return 0xFF00A8E1;
             case "com.disney.disneyplus": return 0xFF0E1B4D;
             case "com.wbd.stream":

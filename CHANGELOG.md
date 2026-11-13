@@ -6,6 +6,7 @@
 
 **Launcher**
 - Uses much less memory: blurred backdrops are kept at 480x270 instead of full HD (0.5 MB instead of 8.3 MB each), and image caches are released while the launcher is hidden, e.g. during a video (about 54 MB in the background instead of 124 MB on a Bravia with 2.3 GB RAM).
+- The red remote button opens EFS Tube instead of SmartTube.
 
 ## 1.1.1
 
