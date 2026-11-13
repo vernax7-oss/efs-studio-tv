@@ -132,6 +132,15 @@ public class MainActivity extends Activity {
         Drawable rawIcon;
     }
 
+    // Launcher hidden (e.g. a video is playing): give back the image caches, TVs have little RAM. They rebuild on return.
+    @Override public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_UI_HIDDEN) {
+            backdropCache.clear();
+            ImageLoader.get().clear();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1036,7 +1045,8 @@ public class MainActivity extends Activity {
         }
         Bitmap blurred = Bitmap.createBitmap(sw, sh, Bitmap.Config.ARGB_8888);
         blurred.setPixels(px, 0, sw, 0, 0, sw, sh);
-        return Bitmap.createScaledBitmap(blurred, 1920, 1080, true);
+        // 480x270 is enough for a blurred image; at 1920x1080 every cached backdrop took 8.3 MB (now 0.5 MB)
+        return Bitmap.createScaledBitmap(blurred, 480, 270, true);
     }
 
 

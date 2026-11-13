@@ -44,6 +44,8 @@ public class ImageLoader {
     private final Handler main = new Handler(Looper.getMainLooper());
     private Context appContext;
 
+    public void clear() { cache.evictAll(); }
+
     public void init(Context ctx) {
         appContext = ctx.getApplicationContext();
     }
