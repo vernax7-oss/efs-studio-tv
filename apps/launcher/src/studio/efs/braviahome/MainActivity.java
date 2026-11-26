@@ -432,13 +432,14 @@ public class MainActivity extends Activity {
     }
 
     // keys of the remote's red / green / yellow / blue buttons
-    private static final String RED_APP = "studio.efs.tube";
+    // red: the first of these that is installed (EFS Tube, SmartTube, the stock YouTube app)
+    private static final String[] RED_APPS = {"studio.efs.tube", "org.smarttube.beta", "com.google.android.youtube.tv"};
     private static final String GREEN_APP = "com.canal.android.canal";
     private static final String BLUE_APP = "com.efsstudio.pogoda.tv";
 
     private boolean colourKey(int keyCode) {
         switch (keyCode) {
-            case KeyEvent.KEYCODE_PROG_RED: openPackage(RED_APP); return true;
+            case KeyEvent.KEYCODE_PROG_RED: openPackage(RED_APPS); return true;
             case KeyEvent.KEYCODE_PROG_GREEN: openPackage(GREEN_APP); return true;
             case KeyEvent.KEYCODE_PROG_BLUE: openPackage(BLUE_APP); return true;
             case KeyEvent.KEYCODE_PROG_YELLOW:
@@ -450,11 +451,16 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void openPackage(String pkg) {
+    /** Opens the first of the given apps that is installed; does nothing when none is. */
+    private void openPackage(String... pkgs) {
         PackageManager pm = getPackageManager();
-        Intent found = pm.getLeanbackLaunchIntentForPackage(pkg);
-        if (found == null) found = pm.getLaunchIntentForPackage(pkg);
-        if (found == null) return;   // not installed on this TV
+        Intent found = null;
+        for (String pkg : pkgs) {
+            found = pm.getLeanbackLaunchIntentForPackage(pkg);
+            if (found == null) found = pm.getLaunchIntentForPackage(pkg);
+            if (found != null) break;
+        }
+        if (found == null) return;
         final Intent intent = found;
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         openWithEffect(new Runnable() { @Override public void run() { startActivity(intent); } });

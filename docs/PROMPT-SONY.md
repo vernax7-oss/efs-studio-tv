@@ -44,7 +44,7 @@ b) Connect: adb connect <IP>:5555 (ask me to confirm the permission prompt on th
    (getprop ro.product.model, ro.build.version.release, the stock launcher:
    cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME).
 c) Take a snapshot: tools/snapshot.ps1 -Dev <IP>:5555.
-d) Build the launcher (apps/launcher/build.ps1), install it (adb install -r) — before installing, tell me
+d) Get the launcher: if apk/EFS-Studio-TV-*.apk exists, install that file (no SDK needed); otherwise build it (apps/launcher/build.ps1). Install it (adb install -r) — before installing, tell me
    that the TV may show a Play Protect warning and that I should choose "Install anyway" on the TV
    (the app collects no data; see README "Privacy"). Then grant the permission
    for the "Continue watching" row (pm grant studio.efs.braviahome android.permission.READ_TV_LISTINGS),
@@ -56,7 +56,7 @@ f) Optimization: show me the tools/optimize.ps1 switches with a short explanatio
    Also ask whether I want to restrict background work of any apps — show me the installed ones.
 g) Telemetry: tools/telemetry.ps1, then tell me what to switch off by hand in the TV menu
    (Google "Usage & diagnostics", Sony consents).
-h) Extras, only if the folder local/paczka/ exists and holds APK files (my own bundle; if it does not
+h) Extras, only if an apk/ folder with APK files exists in this repository folder (the downloaded bundle; if it does not
    exist, skip this step without mentioning it). Install each one the same way as the launcher
    (tell me what you will install, wait for my approval, adb install -r, then check it starts):
    - Pogoda-TV-*.apk (package com.efsstudio.pogoda.tv) - the weather app that the launcher's blue button opens.

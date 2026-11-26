@@ -79,7 +79,7 @@ b) Connect (adb connect <IP>:5555; on Android 11+ guide me through Wireless debu
    ro.build.version.release, whether it's Android TV or Google TV, the list of home screens
    (cmd package query-activities ... category.HOME) and the list of all packages (pm list packages -f).
 c) Snapshot: tools/snapshot.ps1 -Dev <IP>:5555.
-d) Build and install the launcher (apps/launcher/build.ps1, adb install -r; warn me first that the TV
+d) Get the launcher: if apk/EFS-Studio-TV-*.apk exists install that file, otherwise build it (apps/launcher/build.ps1); (install with adb install -r; warn me first that the TV
    may show a Play Protect warning and I should choose "Install anyway"), grant
    pm grant studio.efs.braviahome android.permission.READ_TV_LISTINGS (for "Continue watching"),
    start it with am start, check with a screenshot.
@@ -90,7 +90,7 @@ f) Optimization: from the package list, prepare a table of candidates to disable
 g) Telemetry: run tools/telemetry.ps1 (the Google packages will work, the Sony ones won't be there),
    then propose vendor telemetry packages the same way as in f).
    Tell me what to switch off by hand in the menu (Google "Usage & diagnostics", vendor consents).
-h) Extras, only if the folder local/paczka/ exists and holds APK files (my own bundle; if it does not
+h) Extras, only if an apk/ folder with APK files exists in this repository folder (the downloaded bundle; if it does not
    exist, skip this step without mentioning it). Install each one the same way as the launcher (tell me
    what you will install, wait for my approval, adb install -r, then check it starts):
    - Pogoda-TV-*.apk (com.efsstudio.pogoda.tv) - the weather app that the launcher's blue button opens.
