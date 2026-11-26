@@ -90,7 +90,17 @@ f) Optimization: from the package list, prepare a table of candidates to disable
 g) Telemetry: run tools/telemetry.ps1 (the Google packages will work, the Sony ones won't be there),
    then propose vendor telemetry packages the same way as in f).
    Tell me what to switch off by hand in the menu (Google "Usage & diagnostics", vendor consents).
-h) Summary: what changed, what stayed, where the undo files are, how to get back to the stock home screen.
+h) Extras, only if the folder local/paczka/ exists and holds APK files (my own bundle; if it does not
+   exist, skip this step without mentioning it). Install each one the same way as the launcher (tell me
+   what you will install, wait for my approval, adb install -r, then check it starts):
+   - Pogoda-TV-*.apk (com.efsstudio.pogoda.tv) - the weather app that the launcher's blue button opens.
+   - Cleaner-TV-*.apk (studio.efs.clean) - one-button cleaner; it needs, once, adb shell pm grant studio.efs.clean
+     android.permission.WRITE_SECURE_SETTINGS, ... android.permission.DUMP, ... android.permission.PACKAGE_USAGE_STATS
+     and adb shell appops set studio.efs.clean GET_USAGE_STATS allow. Tell me what each grant does first.
+   - WiFi-Watchdog-*.apk (studio.efs.wifiwatchdog) is OPTIONAL: install it only if I say the device shows
+     "Connected, no internet" after waking up (see WIFI-WATCHDOG.md), and open it once afterwards.
+   Apps already installed with the same or a newer version: leave them alone and tell me.
+i) Summary: what changed, what stayed, where the undo files are, how to get back to the stock home screen.
    If I want, also prepare the package list for my brand in a form I can contribute to the
    repository (without my data: IP, network names, device name).
 ```
