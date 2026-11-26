@@ -17,6 +17,10 @@
 #     created automatically if it does not exist.
 #   Note: updating an app on the TV requires the SAME key as the previous install.
 #
+# -WithWatchdog: personal build with the Wi-Fi watchdog (apps/wifi-watchdog) merged into the launcher APK
+#   (one app, one install; the service starts with the launcher and after boot). Output: appsauncherbuildwatchdogpp.apk.
+#   Only for the launcher; the public build stays without it.
+#
 # -RenamePackage <name>: builds a copy under another package name, so it can be installed next to
 #   an existing install (e.g. one signed with a different key) for testing. Start it with
 #   adb shell am start -n <name>/studio.efs.braviahome.MainActivity and uninstall it afterwards.
@@ -25,12 +29,15 @@ param(
   [string]$Sdk = "",
   [int]$MinSdk = 23,
   [int]$TargetSdk = 28,
-  [string]$RenamePackage = ""
+  [string]$RenamePackage = "",
+  [switch]$WithWatchdog
 )
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 $root = (Resolve-Path (Join-Path $repo $App)).Path
 $out  = Join-Path $root "build"
+if ($WithWatchdog) { $out = Join-Path $out "watchdog" }   # inside the git-ignored build folder
+$wd = Join-Path $repo "apps\wifi-watchdog"
 
 # --- SDK and tools ---
 $candidates = @($Sdk, $env:ANDROID_HOME, $env:ANDROID_SDK_ROOT, (Join-Path $env:LOCALAPPDATA "Android\Sdk")) |
@@ -74,17 +81,43 @@ New-Item -ItemType Directory -Force -Path "$out\classes", "$out\dex", "$out\gen"
 Write-Host "== aapt2 compile + link =="
 & "$bt\aapt2.exe" compile --dir "$root\res" -o "$out\res.zip"
 if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
+$manifest = "$root\AndroidManifest.xml"
 $assets = @(); if (Test-Path "$root\assets") { $assets = @("-A", "$root\assets") }
 if ($RenamePackage) { $assets += @("--rename-manifest-package", $RenamePackage) }
+if ($WithWatchdog) {
+  # watchdog strings only (its launcher icon must not replace the launcher's), R for its package,
+  # and its permissions, service and boot receiver inserted into a copy of the manifest
+  $wdRes = "$out\wd-res"
+  New-Item -ItemType Directory -Force -Path $wdRes | Out-Null
+  Get-ChildItem "$wd\res" -Directory -Filter "values*" | ForEach-Object { Copy-Item $_.FullName $wdRes -Recurse }
+  # the watchdog's own app_name would clash with the launcher's
+  Get-ChildItem $wdRes -Recurse -Filter strings.xml | ForEach-Object {
+    $lines = [IO.File]::ReadAllLines($_.FullName) | Where-Object { $_ -notmatch 'name="app_name"' }
+    [IO.File]::WriteAllLines($_.FullName, $lines)
+  }
+  & "$bt\aapt2.exe" compile --dir $wdRes -o "$out\wd-res.zip"
+  if ($LASTEXITCODE -ne 0) { throw "aapt2 compile (watchdog) failed" }
+  $utf8 = New-Object System.Text.UTF8Encoding($false)
+  $text = [IO.File]::ReadAllText($manifest, $utf8)
+  $perms = [IO.File]::ReadAllText("$wd\merge\permissions.xml", $utf8)
+  $comps = [IO.File]::ReadAllText("$wd\merge\components.xml", $utf8)
+  $text = $text.Replace("    <application", $perms + "`r`n    <application").Replace("</application>", $comps + "    </application>")
+  if ($text -notmatch "WatchdogService") { throw "could not merge the watchdog into the manifest" }
+  $manifest = "$out\AndroidManifest.xml"
+  [IO.File]::WriteAllText($manifest, $text, $utf8)
+  $assets += @("--extra-packages", "studio.efs.wifiwatchdog")
+}
+$resZips = @("$out\res.zip"); if ($WithWatchdog) { $resZips += "$out\wd-res.zip" }
 & "$bt\aapt2.exe" link -o "$out\app-unsigned.apk" -I $jar `
-    --manifest "$root\AndroidManifest.xml" `
+    --manifest $manifest `
     --min-sdk-version $MinSdk --target-sdk-version $TargetSdk @assets `
-    --java "$out\gen" --auto-add-overlay "$out\res.zip"
+    --java "$out\gen" --auto-add-overlay @resZips
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed" }
 
 Write-Host "== javac =="
 $sources = @()
 $sources += (Get-ChildItem "$root\src" -Recurse -Filter *.java | ForEach-Object { $_.FullName })
+if ($WithWatchdog) { $sources += (Get-ChildItem "$wd\src" -Recurse -Filter *.java | ForEach-Object { $_.FullName }) }
 $sources += (Get-ChildItem "$out\gen" -Recurse -Filter *.java | ForEach-Object { $_.FullName })
 & javac -encoding UTF-8 -source 8 -target 8 -bootclasspath $jar -d "$out\classes" $sources
 if ($LASTEXITCODE -ne 0) { throw "javac failed" }

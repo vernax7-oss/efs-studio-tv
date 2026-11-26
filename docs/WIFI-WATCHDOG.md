@@ -101,3 +101,17 @@ e) If the problem can be the TV's Wi-Fi not recovering after standby — propose
 f) Tell me how to check later whether it helped (where the log is and what the entries mean)
    and how to remove the watchdog.
 ```
+
+## One app instead of two (optional build)
+
+If you build the launcher yourself you can bake the watchdog into it, so there is a single install and nothing to
+lose when the launcher is updated:
+
+```powershell
+.\apps\launcher\build.ps1 -WithWatchdog     # -> apps\launcher\build\watchdog\app.apk
+```
+
+The watchdog's service and boot receiver are merged into the launcher; the launcher starts the service every time
+it opens, and it also starts by itself after boot. Uninstall the separate watchdog app first
+(`adb uninstall studio.efs.wifiwatchdog`) so two copies don't fight over the Wi-Fi radio. The normal build
+(`.\apps\launcher\build.ps1`) has no watchdog in it.

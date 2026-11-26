@@ -220,6 +220,7 @@ public class MainActivity extends Activity {
         renderHome();
         handler.post(clockTick);
         askForTvListings();
+        startWatchdogIfPresent();
 
         // newly installed and removed apps appear and disappear right away, without restarting the launcher
         IntentFilter pkgFilter = new IntentFilter();
@@ -402,6 +403,20 @@ public class MainActivity extends Activity {
             saver.start();
         }
     };
+
+    /**
+     * Personal builds carry the Wi-Fi watchdog service (build with -WithWatchdog); the launcher starts it
+     * on every launch, and it also starts itself at boot. In the public build there is no such class,
+     * the system finds no service and does nothing.
+     */
+    private void startWatchdogIfPresent() {
+        try {
+            Intent svc = new Intent().setClassName(this, "studio.efs.wifiwatchdog.WatchdogService");
+            if (Build.VERSION.SDK_INT >= 26) startForegroundService(svc); else startService(svc);
+        } catch (Exception e) {
+            android.util.Log.w("EFSHome", "watchdog not started: " + e.getMessage());
+        }
+    }
 
     private void restartIdleTimer() {
         handler.removeCallbacks(startSaver);

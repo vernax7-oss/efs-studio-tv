@@ -1,0 +1,12 @@
+        <service
+            android:name="studio.efs.wifiwatchdog.WatchdogService"
+            android:exported="false" />
+
+        <receiver
+            android:name="studio.efs.wifiwatchdog.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
