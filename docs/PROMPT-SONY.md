@@ -56,7 +56,22 @@ f) Optimization: show me the tools/optimize.ps1 switches with a short explanatio
    Also ask whether I want to restrict background work of any apps — show me the installed ones.
 g) Telemetry: tools/telemetry.ps1, then tell me what to switch off by hand in the TV menu
    (Google "Usage & diagnostics", Sony consents).
-h) Finally a short summary: what changed, what stayed, where the undo files are
+h) Extras, only if the folder local/paczka/ exists and holds APK files (my own bundle; if it does not
+   exist, skip this step without mentioning it). Install each one the same way as the launcher
+   (tell me what you will install, wait for my approval, adb install -r, then check it starts):
+   - Pogoda-TV-*.apk (package com.efsstudio.pogoda.tv) - the weather app that the launcher's blue button opens.
+   - Cleaner-TV-*.apk (package studio.efs.clean) - one-button cleaner. It needs, once, the grants
+     adb shell pm grant studio.efs.clean android.permission.WRITE_SECURE_SETTINGS,
+     ... android.permission.DUMP, ... android.permission.PACKAGE_USAGE_STATS and
+     adb shell appops set studio.efs.clean GET_USAGE_STATS allow
+     (after that it switches its accessibility service on by itself). Tell me what each grant does first.
+   - WiFi-Watchdog-*.apk (package studio.efs.wifiwatchdog) is OPTIONAL and separate: ask me whether
+     the TV shows "Connected, no internet" after waking up (see WIFI-WATCHDOG.md) and install it only if I say yes.
+     After installing it, open it once (am start -n studio.efs.wifiwatchdog/.MainActivity), otherwise Android does not
+     start it at boot. Don't install it if this launcher build already contains the watchdog
+     (adb shell pm dump studio.efs.braviahome | grep WatchdogService), or two copies will fight over the Wi-Fi radio.
+   Apps that are already installed with the same or a newer version: leave them alone and tell me.
+i) Finally a short summary: what changed, what stayed, where the undo files are
    and how to get back to the stock home screen.
 
 If package names differ from the ones in the scripts (e.g. a newer Google TV model), don't guess:
