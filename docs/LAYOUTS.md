@@ -85,7 +85,7 @@ The order is saved on the TV; apps you install later are added at the end.
 
 ## Remote buttons and screensaver
 
-- **Red** opens SmartTube, **Green** CANAL+, **Blue** the Pogoda (weather) app, **Yellow** switches to the next layout.
+- **Red** opens EFS Tube, **Green** CANAL+, **Blue** the Pogoda (weather) app, **Yellow** switches to the next layout.
   The apps are fixed in `MainActivity.java` (`RED_APP`, `GREEN_APP`, `BLUE_APP`); a button does nothing if the app isn't installed.
 - After 3 minutes without a button press the screensaver starts: the photos fade into each other and drift slowly,
   with a small clock that hops between corners. Any button wakes the launcher (that press does nothing else).
