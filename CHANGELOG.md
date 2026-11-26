@@ -6,7 +6,7 @@
 
 **Launcher**
 - Uses much less memory: blurred backdrops are kept at 480x270 instead of full HD (0.5 MB instead of 8.3 MB each), and image caches are released while the launcher is hidden, e.g. during a video (about 54 MB in the background instead of 124 MB on a Bravia with 2.3 GB RAM).
-- The red remote button opens the first installed of EFS Tube, SmartTube and the stock YouTube app.
+- The built-in coloured remote buttons are gone (they were tied to the author's own apps). Instead the launcher has a small hook: add your own `PersonalKeys` class and build with `-ExtraSrc`, see docs/LAYOUTS.md.
 - Optional build with the Wi-Fi watchdog merged into the launcher (`.\apps\launcher\build.ps1 -WithWatchdog`); the normal build and the downloads stay without it, the watchdog remains a separate optional app.
 - The install prompts (docs/PROMPT-SONY.md, docs/OTHER-BRANDS.md) have an extras step: Pogoda TV, Cleaner TV and the optional Wi-Fi watchdog, installed from the `apk/` folder of the downloaded bundle.
 

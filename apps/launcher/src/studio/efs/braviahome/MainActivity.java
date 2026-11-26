@@ -326,7 +326,7 @@ public class MainActivity extends Activity {
             if (panel.handleKey(event.getKeyCode())) return true;
         }
 
-        if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0 && movingPkg == null && !panelShown() && colourKey(event.getKeyCode())) return true;
+        if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0 && movingPkg == null && !panelShown() && personalKey(event.getKeyCode())) return true;
         trackHold(event);
         if (movingPkg != null && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (event.getRepeatCount() != 0) return true;
@@ -431,28 +431,41 @@ public class MainActivity extends Activity {
         return wasShowing;
     }
 
-    // keys of the remote's red / green / yellow / blue buttons
-    // red: the first of these that is installed (EFS Tube, SmartTube, the stock YouTube app)
-    private static final String[] RED_APPS = {"studio.efs.tube", "org.smarttube.beta", "com.google.android.youtube.tv"};
-    private static final String GREEN_APP = "com.canal.android.canal";
-    private static final String BLUE_APP = "com.efsstudio.pogoda.tv";
+    /**
+     * Extension point for your own remote-button actions: a build that contains a class
+     * studio.efs.braviahome.PersonalKeys with `public static boolean onKey(MainActivity a, int keyCode)`
+     * gets every button press first and returns true when it handled it (see docs/LAYOUTS.md).
+     * The public launcher has no such class, so the coloured buttons do nothing there.
+     */
+    private static java.lang.reflect.Method personalKeys;
+    private static boolean personalKeysLooked;
 
-    private boolean colourKey(int keyCode) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_PROG_RED: openPackage(RED_APPS); return true;
-            case KeyEvent.KEYCODE_PROG_GREEN: openPackage(GREEN_APP); return true;
-            case KeyEvent.KEYCODE_PROG_BLUE: openPackage(BLUE_APP); return true;
-            case KeyEvent.KEYCODE_PROG_YELLOW:
-                look.layout = Look.nextOf(Look.LAYOUTS, look.layout);
-                look.save(prefs);
-                renderHome();
-                return true;
-            default: return false;
+    private boolean personalKey(int keyCode) {
+        if (!personalKeysLooked) {
+            personalKeysLooked = true;
+            try {
+                personalKeys = Class.forName("studio.efs.braviahome.PersonalKeys")
+                        .getMethod("onKey", MainActivity.class, int.class);
+            } catch (Exception ignored) { }   // no such class: normal for the public build
+        }
+        if (personalKeys == null) return false;
+        try {
+            return (Boolean) personalKeys.invoke(null, this, keyCode);
+        } catch (Exception e) {
+            android.util.Log.w("EFSHome", "PersonalKeys failed: " + e);
+            return false;
         }
     }
 
+    /** Switches to the next layout (same as the layout pill). */
+    void nextLayout() {
+        look.layout = Look.nextOf(Look.LAYOUTS, look.layout);
+        look.save(prefs);
+        renderHome();
+    }
+
     /** Opens the first of the given apps that is installed; does nothing when none is. */
-    private void openPackage(String... pkgs) {
+    void openPackage(String... pkgs) {
         PackageManager pm = getPackageManager();
         Intent found = null;
         for (String pkg : pkgs) {

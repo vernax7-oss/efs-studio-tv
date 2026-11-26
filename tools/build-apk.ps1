@@ -21,6 +21,9 @@
 #   (one app, one install; the service starts with the launcher and after boot). Output: appsauncherbuildwatchdogpp.apk.
 #   Only for the launcher; the public build stays without it.
 #
+# -ExtraSrc <dir>: extra .java sources compiled into the app (e.g. your own studio.efs.braviahome.PersonalKeys,
+#   see docs/LAYOUTS.md); output goes to the same buildwatchdog folder only together with -WithWatchdog, otherwise to buildextra.
+#
 # -RenamePackage <name>: builds a copy under another package name, so it can be installed next to
 #   an existing install (e.g. one signed with a different key) for testing. Start it with
 #   adb shell am start -n <name>/studio.efs.braviahome.MainActivity and uninstall it afterwards.
@@ -30,13 +33,15 @@ param(
   [int]$MinSdk = 23,
   [int]$TargetSdk = 28,
   [string]$RenamePackage = "",
-  [switch]$WithWatchdog
+  [switch]$WithWatchdog,
+  [string]$ExtraSrc = ""
 )
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 $root = (Resolve-Path (Join-Path $repo $App)).Path
 $out  = Join-Path $root "build"
 if ($WithWatchdog) { $out = Join-Path $out "watchdog" }   # inside the git-ignored build folder
+elseif ($ExtraSrc) { $out = Join-Path $out "extra" }
 $wd = Join-Path $repo "apps\wifi-watchdog"
 
 # --- SDK and tools ---
@@ -118,6 +123,7 @@ Write-Host "== javac =="
 $sources = @()
 $sources += (Get-ChildItem "$root\src" -Recurse -Filter *.java | ForEach-Object { $_.FullName })
 if ($WithWatchdog) { $sources += (Get-ChildItem "$wd\src" -Recurse -Filter *.java | ForEach-Object { $_.FullName }) }
+if ($ExtraSrc) { $sources += (Get-ChildItem (Resolve-Path $ExtraSrc).Path -Recurse -Filter *.java | ForEach-Object { $_.FullName }) }
 $sources += (Get-ChildItem "$out\gen" -Recurse -Filter *.java | ForEach-Object { $_.FullName })
 & javac -encoding UTF-8 -source 8 -target 8 -bootclasspath $jar -d "$out\classes" $sources
 if ($LASTEXITCODE -ne 0) { throw "javac failed" }

@@ -85,7 +85,9 @@ The order is saved on the TV; apps you install later are added at the end.
 
 ## Remote buttons and screensaver
 
-- **Red** opens the first installed of EFS Tube, SmartTube and YouTube, **Green** CANAL+, **Blue** the Pogoda (weather) app, **Yellow** switches to the next layout.
-  The apps are fixed in `MainActivity.java` (`RED_APP`, `GREEN_APP`, `BLUE_APP`); a button does nothing if the app isn't installed.
+- The coloured remote buttons do nothing by default. To give them your own actions, add a class
+  `studio.efs.braviahome.PersonalKeys` with `public static boolean onKey(MainActivity a, int keyCode)` (return true when you
+  handled the key) and build with `.\apps\launcher\build.ps1 -ExtraSrc <folder with your .java>`. Handy helpers on
+  `MainActivity`: `openPackage("com.example.app")` and `nextLayout()`. Example: red = `KeyEvent.KEYCODE_PROG_RED`.
 - After 3 minutes without a button press the screensaver starts: the photos fade into each other and drift slowly,
   with a small clock that hops between corners. Any button wakes the launcher (that press does nothing else).
